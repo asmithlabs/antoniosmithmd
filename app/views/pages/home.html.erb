@@ -15,7 +15,7 @@
 <h2 class="section">Projects <span class="tag-r">*projects*</span></h2>
 <% if @projects.any? || SITE[:projects].present? %>
   <ul class="linklist">
-    <% @projects.each do |p| %><li><%= link_to p.title, post_path(p) %> <span class="muted"><%= p.description.truncate(60) %></span></li><% end %>
+    <% @projects.each do |p| %><li><%= link_to p.display_title, post_path(p) %> <span class="muted"><%= p.description.truncate(60) %></span></li><% end %>
     <% Array(SITE[:projects]).each do |pr| %><li><%= link_to pr[:name], pr[:url] %> <span class="muted"><%= pr[:description].to_s.truncate(60) %></span></li><% end %>
   </ul>
   <p><%= link_to "all projects →", projects_path, class: "more" %></p>
@@ -26,7 +26,7 @@
 <h2 class="section">Writing <span class="tag-r">*writing*</span></h2>
 <p class="muted">Articles, notes, and occasional observations on medicine, technology, and other subjects.</p>
 <% if @writing.any? %>
-  <ul class="linklist"><% @writing.each do |p| %><li><%= link_to p.title, post_path(p) %> <span class="muted"><%= p.published_at.strftime("%Y-%m-%d") %></span></li><% end %></ul>
+  <ul class="linklist"><% @writing.each do |p| %><li><%= link_to p.display_title, post_path(p) %> <span class="muted"><%= p.published_at.strftime("%Y-%m-%d") %></span></li><% end %></ul>
   <p><%= link_to "all writing →", posts_path, class: "more" %></p>
 <% else %>
   <p class="muted">First posts coming soon.</p>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_13_080830) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_13_212302) do
   create_table "api_tokens", force: :cascade do |t|
     t.string "name"
     t.string "token_digest"
@@ -62,6 +62,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_13_080830) do
     t.boolean "featured", default: false, null: false
     t.string "source"
     t.string "source_path"
+    t.text "title_html"
     t.index ["slug"], name: "index_posts_on_slug", unique: true
   end
 

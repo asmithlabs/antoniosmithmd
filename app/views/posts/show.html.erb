@@ -27,7 +27,7 @@
       · <%= @post.reading_minutes %> min read
       <% if @post.category %> · <%= link_to @post.category_name, category_path(@post.category) %><% end %>
     </p>
-    <h1><%= @post.title %></h1>
+    <h1><%= @post.display_title %></h1>
     <% if @post.excerpt.present? %><p class="lede"><%= @post.excerpt %></p><% end %>
   </header>
 
@@ -53,7 +53,7 @@
 
   <% if @related.any? %>
     <h2 class="section">Related <span class="tag-r">*related*</span></h2>
-    <ul class="linklist"><% @related.each do |r| %><li><%= link_to r.title, post_path(r) %> <span class="muted"><%= r.published_at.to_date %></span></li><% end %></ul>
+    <ul class="linklist"><% @related.each do |r| %><li><%= link_to r.display_title, post_path(r) %> <span class="muted"><%= r.published_at.to_date %></span></li><% end %></ul>
   <% end %>
 
   <%= render "comments/section", post: @post, tree: @tree %>

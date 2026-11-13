@@ -16,7 +16,7 @@
     <% @posts.each do |post| %>
       <li>
         <p class="meta"><%= post.published_at.strftime("%Y-%m-%d") %><% if post.category %> · <%= link_to post.category, category_path(post.category) %><% end %> · <%= post.reading_minutes %> min</p>
-        <h2><%= link_to post.title, post_path(post) %><% if post.featured %> <span class="star" title="Featured">*</span><% end %></h2>
+        <h2><%= link_to post.display_title, post_path(post) %><% if post.featured %> <span class="star" title="Featured">*</span><% end %></h2>
         <p class="excerpt"><%= post.description %></p>
       </li>
     <% end %>
