@@ -8,6 +8,7 @@ services:
   antoniosmithmd:
     build: .
     image: antoniosmithmd:latest
+    pull_policy: build   # build from this repo; never try to download from Docker Hub
     container_name: antoniosmithmd
     user: "0:0"   # lets it write to the dataset folder without a chown step
     restart: unless-stopped
