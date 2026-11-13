@@ -4,7 +4,7 @@
   <tbody>
   <% @posts.each do |p| %>
     <tr>
-      <td><%= link_to p.title, edit_admin_post_path(p) %><%= " *" if p.featured %><% if p.source.present? %> <small class="src">[<%= p.source %>]</small><% end %></td>
+      <td><%= link_to p.display_title, edit_admin_post_path(p) %><%= " *" if p.featured %><% if p.source.present? %> <small class="src">[<%= p.source %>]</small><% end %></td>
       <td class="muted"><%= p.category %></td>
       <td><% if p.published? %><span class="tag live">published <%= p.published_at.to_date %></span><% elsif p.published_at %><span class="tag">scheduled <%= p.published_at.to_date %></span><% else %><span class="tag">draft</span><% end %></td>
       <td class="muted"><%= p.comments_count %><%= " · off" unless p.comments_enabled %><%= " · opens #{p.comments_open_at.to_date}" if p.comments_pending_open? %><%= " · moderated" if p.comments_moderated %></td>

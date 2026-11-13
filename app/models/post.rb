@@ -11,14 +11,23 @@ class Post < ApplicationRecord
 
   ALLOWED_TAGS = %w[p br h2 h3 h4 strong em s u code pre blockquote ul ol li a img hr table thead tbody tr th td
                     aside details summary div span mark sup sub figure figcaption].freeze
-  ALLOWED_ATTRS = %w[href src alt title class id data-type data-kind open colspan rowspan target rel].freeze
+  ALLOWED_ATTRS = %w[href src alt title class id data-type data-kind data-cite data-locator open colspan rowspan target rel].freeze
 
   has_many :comments, dependent: :destroy
 
   validates :title, :body, presence: true
   validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
   validates :category, inclusion: { in: CATEGORIES.keys }, allow_blank: true
+  TITLE_TAGS = %w[strong em u s code a mark sup sub].freeze
+  before_validation :normalize_title
+  before_validation { self.category = category.presence; self.tags = tags.presence; self.excerpt = excerpt.presence }
   before_validation { self.slug = (slug.presence || title).to_s.parameterize }
+
+  # Rich title (bold/italic/code/links). `title` stays plain text for <title>, SEO, RSS, URLs.
+  def display_title
+    html = title_html.presence || ERB::Util.h(title)
+    ActionController::Base.helpers.sanitize(html, tags: TITLE_TAGS, attributes: %w[href]).html_safe
+  end
 
   scope :published, -> { where.not(published_at: nil).where(published_at: ..Time.current).order(published_at: :desc) }
   scope :in_category, ->(c) { c.present? ? where(category: c) : all }
@@ -56,6 +65,13 @@ class Post < ApplicationRecord
 
   private
 
+  def normalize_title
+    return if title_html.blank?
+    self.title_html = title_html.to_s.strip.sub(/\A<p>(.*)<\/p>\z/m, '\\1')
+    plain = Nokogiri::HTML.fragment(title_html).text.squish
+    self.title = plain if plain.present?
+  end
+
   def processed
     @processed ||= begin
       raw = body.to_s.lstrip.start_with?("<") ? body.to_s : markdown(body.to_s)
@@ -79,6 +95,10 @@ class Post < ApplicationRecord
   # [@key] / [@a; @b, p. 4] -> numbered superscripts + a References section (order of first citation)
   def apply_citations(doc)
     return [] unless doc.text.include?("@")
+    doc.css("span[data-cite]").each { |sp| sp.replace(Nokogiri::XML::Text.new(sp.text, doc.document)) }
+    merged = doc.to_html
+    loop { nxt = merged.gsub(/(\[-?@[^\]\[]*)\][[:space:]\u00A0]*(?:&nbsp;)?[[:space:]\u00A0]*\[(-?@)/, '\\1; \\2'); break if nxt == merged; merged = nxt }
+    doc.children.each(&:remove); doc.add_child(Nokogiri::HTML.fragment(merged))
     order, refs = [], {}
     doc.xpath(".//text()[not(ancestor::code) and not(ancestor::pre) and not(ancestor::a)]").each do |node|
       next unless node.text.match?(Reference::CITE)
@@ -92,7 +112,7 @@ class Post < ApplicationRecord
           next %(<span class="cite-missing" title="Not found in Zotero — sync or check the key">@#{ERB::Util.h(key)}?</span>) unless ref
           order << key unless order.include?(key)
           n = order.index(key) + 1
-          label = locator ? "#{n}, #{ERB::Util.h(locator)}" : n.to_s
+          label = locator ? "#{n} (#{ERB::Util.h(locator)})" : n.to_s
           %(<a href="#ref-#{n}" class="cite" title="#{ERB::Util.h("#{ref.short_label} — #{ref.title}")}">#{label}</a>)
         end
         cites.empty? ? whole : %(<sup class="cites">[#{cites.join(", ")}]</sup>)

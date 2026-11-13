@@ -5,3 +5,7 @@
 /editor/node_modules
 /storage/*
 /config/credentials.yml.enc
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep

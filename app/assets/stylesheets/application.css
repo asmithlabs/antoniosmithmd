@@ -219,3 +219,26 @@ main.wide{max-width:140ch}
 }
 .quiet-inline{color:var(--slate);font-size:.9rem}.quiet-inline a{color:var(--slate);border-bottom:1px dotted var(--slate)}
 .adminbar{background:var(--teal);color:var(--bg);font-size:.85rem;padding:.3em 0}.adminbar .wrap{display:flex;gap:2ch;flex-wrap:wrap}.adminbar a{color:var(--bg);text-decoration:underline}
+
+/* Word-style citations in the editor */
+.cite-chip{display:inline-block;color:var(--teal);background:color-mix(in srgb,var(--teal) 10%,transparent);border-bottom:1px dotted var(--teal);padding:0 .3ch;margin:0 .1ch;cursor:pointer;font-size:.85em;vertical-align:super;line-height:1}
+.cite-chip:hover,.cite-chip.ProseMirror-selectednode{background:color-mix(in srgb,var(--gold-l) 40%,transparent)}
+.cite-chip.missing{color:var(--red);border-color:var(--red)}
+.cite-edit{position:absolute;z-index:6;width:340px;background:var(--bg);border:1px solid var(--teal);padding:.6em 1ch;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.88rem}
+.cite-edit .ce-title{margin:0 0 .5em;color:var(--slate)}
+.cite-edit input{width:100%;font:inherit;padding:.3em 1ch;border:1px solid var(--rule);background:var(--bg);color:var(--ink);margin:.2em 0 .5em}
+.cite-edit .ce-actions{display:flex;gap:1ch;flex-wrap:wrap}
+.cite-edit button:not(.btn){font:inherit;background:none;border:1px solid var(--rule);color:var(--ink);cursor:pointer;padding:.2em 1ch}
+.tt-bib{border:1px solid var(--rule);border-top:0;padding:.5em 2ch;font-size:.85rem;color:var(--ink)}
+.tt-bib:empty{display:none}.tt-bib ol{margin:.3em 0 0;padding-left:3ch}
+/* rich title */
+.tt-title .tt-area{min-height:0;padding:.4em 1.5ch;font-size:1.15rem;font-weight:400;color:var(--teal)}
+.tt-title .ProseMirror{min-height:1.5em}
+.tt-title .tt-bar{position:static}
+h1 code,h2 code{color:var(--gold);font:inherit}
+
+/* titles: regular weight so rich-text bold is visible */
+.post header h1,.post-list h2,.hero h1{font-weight:400}
+.post header h1 strong,.post-list h2 strong,.hero h1 strong,.tt-title strong{font-weight:700}
+.post-form input[type=submit].btn{background:var(--teal);color:var(--bg);border:0;width:auto;padding:.4em 3ch;cursor:pointer}
+.post-form input[type=submit].btn:hover{background:var(--gold)}

@@ -2,7 +2,9 @@
   <% if post.errors.any? %><div class="errors"><%= post.errors.full_messages.to_sentence %></div><% end %>
   <div class="form-grid">
     <div class="form-main">
-      <label>Title <%= f.text_field :title, required: true, class: "big" %></label>
+      <label>Title</label>
+      <%= f.hidden_field :title %>
+      <%= f.text_area :title_html, rows: 1, value: (post.title_html.presence || ERB::Util.h(post.title.to_s)), data: { tiptap_title: true } %>
       <label>Excerpt / meta description <small>(~155 chars, shown in Google + post lists)</small>
         <%= f.text_area :excerpt, rows: 2, maxlength: 300 %></label>
       <label>Body</label>

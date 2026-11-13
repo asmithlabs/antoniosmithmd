@@ -26,6 +26,6 @@ module Admin
       missing.any? ? "#{msg} Not found in Zotero: #{missing.map { "@#{_1}" }.join(", ")}" : msg
     end
     def set_post = @post = Post.find_by!(slug: params[:id])
-    def post_params = params.require(:post).permit(:title, :slug, :excerpt, :body, :published_at, :category, :tags, :featured, :comments_enabled, :comments_open_at, :comments_moderated)
+    def post_params = params.require(:post).permit(:title, :title_html, :slug, :excerpt, :body, :published_at, :category, :tags, :featured, :comments_enabled, :comments_open_at, :comments_moderated)
   end
 end
