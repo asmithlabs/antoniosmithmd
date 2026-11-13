@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
-        with: { bundler-cache: true }
+        with: { ruby-version: '3.3', bundler-cache: true }
       - name: Brakeman (fails on medium/high)
         run: bin/brakeman --no-pager -q -w2
       - name: Gem vulnerabilities
@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
-        with: { bundler-cache: true }
+        with: { ruby-version: '3.3', bundler-cache: true }
       - name: Prepare database and seed drafts
         run: bin/rails db:prepare && bin/rails db:seed
       - name: Boot and load every page
