@@ -1,0 +1,13 @@
+<section id="comments" class="comments">
+  <% total = tree.values.flatten.size %>
+  <h2 class="section">Comments (<%= total %>) <span class="tag-r">*comments*</span></h2>
+  <% if post.comments_open? %>
+    <%= render "comments/form", post: post, parent: nil %>
+  <% elsif post.comments_pending_open? %>
+    <p class="muted">Comments open <%= post.comments_open_at.strftime("%B %-d, %Y at %-l:%M %p") %>.</p>
+  <% elsif !post.comments_enabled %>
+    <p class="muted">Comments are closed on this post.</p>
+  <% end %>
+  <% if total.zero? && post.comments_open? %><p class="muted">No comments yet. Start the conversation.</p><% end %>
+  <div class="thread"><%= render partial: "comments/comment", collection: tree[nil] || [], locals: { tree:, post: } %></div>
+</section>

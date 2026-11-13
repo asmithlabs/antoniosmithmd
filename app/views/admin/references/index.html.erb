@@ -1,0 +1,23 @@
+<div class="admin-head"><h1>References</h1>
+  <% if ZoteroLibrary.configured? %>
+    <span><%= button_to "sync from Zotero", sync_admin_references_path, class: "btn", form_class: "inline" %>
+          <%= button_to "full resync", sync_admin_references_path(full: 1), class: "link", form_class: "inline" %></span>
+  <% end %>
+</div>
+<% unless ZoteroLibrary.configured? %>
+  <p class="flash alert">Zotero isn't connected. Set <code>ZOTERO_LIBRARY_ID</code> and <code>ZOTERO_API_KEY</code> (see README), then sync.</p>
+<% end %>
+<p class="muted"><%= Reference.count %> items cached · style: <code><%= ZoteroLibrary.style %></code> · cite in posts or Obsidian as <code>[@key]</code>, <code>[@key, p. 4]</code> or <code>[@a; @b]</code>. New citations sync automatically when you save a post.</p>
+<%= form_with url: admin_references_path, method: :get, class: "pk-add" do %>
+  <input name="q" value="<%= params[:q] %>" placeholder="search title, author, year, DOI, key…"><button class="btn">search</button>
+<% end %>
+<table class="admin-table">
+  <thead><tr><th>Cite key</th><th>Reference</th><th></th></tr></thead>
+  <tbody>
+  <% @refs.each do |r| %>
+    <tr><td><code class="ck">[@<%= r.citekey %>]</code></td>
+        <td><%= r.short_label %> — <%= r.title.to_s.truncate(110) %> <span class="muted">(<%= r.item_type %>)</span></td>
+        <td class="actions"><button type="button" class="link" onclick="navigator.clipboard.writeText('[@<%= j r.citekey %>]');this.textContent='copied'">copy</button></td></tr>
+  <% end %>
+  </tbody>
+</table>

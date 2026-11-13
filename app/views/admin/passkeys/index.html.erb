@@ -1,0 +1,19 @@
+<h1>Security keys</h1>
+<p class="muted">Sign-in needs your password <strong>and</strong> one of these: a YubiKey/security key, a passkey (Touch ID, Face ID, phone)<%= " or Duo" if DuoClient.configured? %>. Register at least two (e.g. two YubiKeys) so losing one doesn't lock you out.</p>
+<p class="muted">Duo: <%= DuoClient.configured? ? "connected" : "not set up (see README)" %></p>
+<table class="admin-table">
+  <thead><tr><th>Name</th><th>Added</th><th>Last used</th><th></th></tr></thead>
+  <tbody>
+  <% @passkeys.each do |k| %>
+    <tr><td><%= k.nickname %></td><td class="muted"><%= k.created_at.to_date %></td><td class="muted"><%= k.last_used_at ? "#{time_ago_in_words(k.last_used_at)} ago" : "never" %></td>
+      <td class="actions"><%= button_to "remove", admin_passkey_path(k), method: :delete, class: "link-danger", form: { onsubmit: "return confirm('Remove this passkey?')" } %></td></tr>
+  <% end %>
+  <% if @passkeys.empty? %><tr><td colspan="4" class="muted">No passkeys yet.</td></tr><% end %>
+  </tbody>
+</table>
+<div class="pk-add">
+  <input id="pk-name" placeholder="name, e.g. YubiKey 5C (keychain)" maxlength="60">
+  <button class="btn" data-passkey="register" data-options-url="<%= options_admin_passkeys_path %>" data-url="<%= admin_passkeys_path %>">Add security key / passkey</button>
+</div>
+<p id="pk-msg" class="pk-msg" role="status"></p>
+<script type="module" src="/js/passkeys.js"></script>

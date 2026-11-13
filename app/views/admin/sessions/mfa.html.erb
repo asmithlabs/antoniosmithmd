@@ -1,0 +1,14 @@
+<div class="login">
+  <h1>Verify it's you</h1>
+  <p class="muted">Step 2 of 2 · second factor</p>
+  <% if @keys %>
+    <button class="btn wide" data-passkey="login" data-options-url="<%= admin_passkey_login_options_path %>" data-url="<%= admin_passkey_login_path %>">Use security key (YubiKey / passkey)</button>
+    <p id="pk-msg" class="pk-msg" role="status"></p>
+  <% end %>
+  <% if @keys && @duo %><p class="or">— or —</p><% end %>
+  <% if @duo %>
+    <%= button_to "Use Duo", admin_duo_start_path, class: "btn wide" %>
+  <% end %>
+  <p class="back"><%= link_to "← start over", admin_login_path %></p>
+</div>
+<script type="module" src="/js/passkeys.js"></script>

@@ -1,0 +1,15 @@
+<div class="admin-head"><h1>Posts</h1><%= link_to "New post", new_admin_post_path, class: "btn" %></div>
+<table class="admin-table">
+  <thead><tr><th>Title</th><th>Category</th><th>Status</th><th>Comments</th><th></th></tr></thead>
+  <tbody>
+  <% @posts.each do |p| %>
+    <tr>
+      <td><%= link_to p.title, edit_admin_post_path(p) %><%= " *" if p.featured %><% if p.source.present? %> <small class="src">[<%= p.source %>]</small><% end %></td>
+      <td class="muted"><%= p.category %></td>
+      <td><% if p.published? %><span class="tag live">published <%= p.published_at.to_date %></span><% elsif p.published_at %><span class="tag">scheduled <%= p.published_at.to_date %></span><% else %><span class="tag">draft</span><% end %></td>
+      <td class="muted"><%= p.comments_count %><%= " · off" unless p.comments_enabled %><%= " · opens #{p.comments_open_at.to_date}" if p.comments_pending_open? %><%= " · moderated" if p.comments_moderated %></td>
+      <td class="actions"><%= link_to "view", post_path(p) if p.published? %> <%= button_to "delete", admin_post_path(p), method: :delete, form: { onsubmit: "return confirm('Delete this post?')" }, class: "link-danger" %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

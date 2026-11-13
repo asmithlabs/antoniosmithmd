@@ -1,0 +1,11 @@
+<% content_for :title, "Projects" %>
+<section class="hero"><p class="eyebrow">projects</p><h1>Projects</h1></section>
+<ul class="post-list">
+<% @projects.each do |p| %>
+  <li><p class="meta"><%= p.published_at.strftime("%Y-%m-%d") %></p><h2><%= link_to p.title, post_path(p) %></h2><p class="excerpt"><%= p.description %></p></li>
+<% end %>
+<% Array(SITE[:projects]).each do |pr| %>
+  <li><h2><%= link_to pr[:name], pr[:url] %></h2><p class="excerpt"><%= pr[:description] %></p></li>
+<% end %>
+</ul>
+<% if @projects.empty? && SITE[:projects].blank? %><p class="muted">Coming soon.</p><% end %>

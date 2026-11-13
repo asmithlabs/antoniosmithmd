@@ -1,0 +1,8 @@
+<%= form_with model: [post, Comment.new], class: "cform" do |f| %>
+  <%= f.hidden_field :parent_id, value: parent&.id %>
+  <div class="hp" aria-hidden="true"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+  <%= f.text_field :author_name, placeholder: "name", value: cookies[:commenter], required: true, maxlength: 60, "aria-label": "Name" %>
+  <%= f.text_area :body, rows: (parent ? 3 : 4), placeholder: (parent ? "reply to #{parent.author_name}…" : "add a comment…"), required: true, maxlength: 5000, "aria-label": "Comment" %>
+  <%= f.submit (parent ? "reply" : "comment"), class: "btn" %>
+  <% if post.comments_moderated %><small class="muted">comments are reviewed before appearing</small><% end %>
+<% end %>

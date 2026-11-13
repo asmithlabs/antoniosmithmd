@@ -1,0 +1,8 @@
+<div class="login">
+  <h1>Sign in</h1>
+  <p class="muted">Step 1 of 2 · password</p>
+  <%= form_with url: admin_login_path, class: "post-form" do %>
+    <label>Password <%= password_field_tag :password, nil, autocomplete: "current-password", required: true, autofocus: true %></label>
+    <%= submit_tag "Continue", class: "btn" %>
+  <% end %>
+</div>

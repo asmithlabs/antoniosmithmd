@@ -1,0 +1,24 @@
+<% heading = @category ? Post::CATEGORIES[@category] : (@tag ? "Tagged “#{@tag}”" : "Blog") %>
+<% content_for :title, heading %>
+<% content_for :description, "Writing by #{SITE[:name]} on clinical informatics, AI in healthcare, hospital medicine, homelab tinkering and notes." %>
+<section class="hero">
+  <p class="eyebrow">blog</p>
+  <h1><%= heading %></h1>
+</section>
+<p class="cats">
+  <%= link_to "all", posts_path, class: ("on" unless @category || @tag) %>
+  <% Post::CATEGORIES.each do |k, v| %><%= link_to k, category_path(k), class: ("on" if @category == k), title: v %><% end %>
+</p>
+<% if @posts.empty? %>
+  <p class="muted">Nothing here yet.</p>
+<% else %>
+  <ol class="post-list">
+    <% @posts.each do |post| %>
+      <li>
+        <p class="meta"><%= post.published_at.strftime("%Y-%m-%d") %><% if post.category %> · <%= link_to post.category, category_path(post.category) %><% end %> · <%= post.reading_minutes %> min</p>
+        <h2><%= link_to post.title, post_path(post) %><% if post.featured %> <span class="star" title="Featured">*</span><% end %></h2>
+        <p class="excerpt"><%= post.description %></p>
+      </li>
+    <% end %>
+  </ol>
+<% end %>

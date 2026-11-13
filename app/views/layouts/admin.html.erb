@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Admin · <%= SITE[:name] %></title>
+  <script>(function(){try{var t=localStorage.getItem("theme");if(t)document.documentElement.dataset.theme=t}catch(e){}})()</script>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex">
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag :app %>
+  <script type="module" src="/js/editor.js"></script>
+</head>
+<body class="admin">
+  <header class="site-header"><div class="wrap">
+    <%= link_to "admin", admin_root_path, class: "brand" %>
+    <nav><% if session[:admin_at] %><%= link_to "posts", admin_root_path %><%= link_to "new post", new_admin_post_path %><%= link_to "comments (#{Comment.where(approved: false).count} pending)", admin_comments_path %><%= link_to "security keys", admin_passkeys_path %><%= link_to "references", admin_references_path %><%= link_to "connections", admin_api_tokens_path %><% end %><%= link_to "view site", root_path %><% if session[:admin_at] %><%= button_to "sign out", admin_logout_path, method: :delete, class: "link navbtn", form_class: "inline" %><% end %><button class="theme-btn" type="button" title="Theme: auto / light / dark" onclick="(function(b){var o=['auto','light','dark'],d=document.documentElement,c=d.dataset.theme||'auto',n=o[(o.indexOf(c)+1)%3];if(n==='auto'){delete d.dataset.theme}else{d.dataset.theme=n}try{n==='auto'?localStorage.removeItem('theme'):localStorage.setItem('theme',n)}catch(e){}b.textContent='['+n+']'})(this)">[<span class="th-l">auto</span>]</button>
+<script>(function(){var b=document.currentScript.previousElementSibling;b.textContent='['+(document.documentElement.dataset.theme||'auto')+']'})()</script></nav>
+  </div></header>
+  <main class="wrap wide">
+    <% flash.each do |k, m| %><p class="flash <%= k %>"><%= m %></p><% end %>
+    <%= yield %>
+  </main>
+</body>
+</html>

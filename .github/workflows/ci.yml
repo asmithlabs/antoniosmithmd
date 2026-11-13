@@ -1,0 +1,51 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with: { bundler-cache: true }
+      - name: Brakeman (fails on medium/high)
+        run: bin/brakeman --no-pager -q -w2
+      - name: Gem vulnerabilities
+        run: bin/bundler-audit check --update
+
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: production
+      SECRET_KEY_BASE: ci-only-not-a-secret-ci-only-not-a-secret-ci-only-not-a-secret-0123456789
+      ADMIN_PASSWORD: ci-password
+      APP_ORIGIN: http://localhost:3000
+      RAILS_FORCE_SSL: "false"
+      RAILS_ASSUME_SSL: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with: { bundler-cache: true }
+      - name: Prepare database and seed drafts
+        run: bin/rails db:prepare && bin/rails db:seed
+      - name: Boot and load every page
+        run: |
+          bin/rails runner 'Post.first.update!(published_at: 1.hour.ago)'
+          bin/rails server -p 3000 -d && sleep 8
+          slug=$(bin/rails runner 'print Post.published.first.slug')
+          for u in / /blog /projects /blog/$slug /feed.xml /sitemap.xml /robots.txt /admin/login /up; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3000$u")
+            echo "$u $code"; [ "$code" = 200 ] || exit 1
+          done
+          code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/admin/posts)
+          echo "/admin/posts (signed out) $code"; [ "$code" = 302 ] || exit 1
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker image builds
+        run: docker build -t antoniosmithmd:ci .

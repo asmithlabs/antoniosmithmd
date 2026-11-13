@@ -1,0 +1,32 @@
+# Edit this file to update the home page. Restart the app after changes.
+# Projects: any post with category "projects" appears automatically; entries under `projects:` are pinned extras.
+name: "Antonio Smith, MD"
+tagline: "Hospitalist · Clinical informatics · Indianapolis"
+intro: |
+  I'm a physician based in Indianapolis, where I work as a hospitalist and train in clinical informatics at Regenstrief Institute.
+
+  Outside of clinical work, my interests include programming, research, and technology. I work on a variety of projects, some related to medicine and others simply because I find them interesting.
+
+  I use this site to share my writing, document projects, and keep notes on things I'm working on.
+hospitalist: |
+  Board-certified internist and hospitalist since 2020 at Good Samaritan Hospital
+  in Vincennes, IN, including two years as hospital medical director. I also teach
+  IM residents and PA students as an adjunct clinical professor.
+informatics: |
+  Clinical Informatics Fellow at Regenstrief Institute / Indiana University.
+  Current work: AI risk categorization and governance, generative-AI prompt design
+  for patient messaging in Epic, computational phenotyping for heat-related
+  illness, and healthcare sustainability informatics.
+education: |
+  MD · MBA, Indiana University Kelley School of Business ·
+  Clinical Informatics Fellowship, Regenstrief Institute / IU
+links:
+  wiki: "https://wiki.asmithlabs.com"
+  github: "https://github.com/asmithlabs"
+  linkedin: "https://www.linkedin.com/in/antonioesmith"
+  cv: "/cv.pdf"
+url: "https://antoniosmithmd.com"
+projects:
+  - name: "asmithlabs homelab wiki"
+    url: "https://wiki.asmithlabs.com"
+    description: "Notes and runbooks from my self-hosted homelab."

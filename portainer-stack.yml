@@ -1,0 +1,37 @@
+# Portainer → Stacks → Add stack → Web editor: paste this file.
+# Environment variables (in Portainer): SECRET_KEY_BASE (openssl rand -hex 64), ADMIN_PASSWORD
+#   optional: ZOTERO_LIBRARY_ID, ZOTERO_API_KEY
+# Portainer → Stacks → antoniosmithmd → Repository mode: github.com/asmithlabs/antoniosmithmd, ref main, compose path portainer-stack.yml.
+# GitOps updates: polling 5m. Portainer rebuilds from the repo when main changes.
+# Joins the existing asmithlabs-edge network. Point antoniosmithmd.com at  http://antoniosmithmd:3000
+services:
+  antoniosmithmd:
+    build: .
+    image: antoniosmithmd:latest
+    container_name: antoniosmithmd
+    user: "0:0"   # lets it write to the dataset folder without a chown step
+    restart: unless-stopped
+    environment:
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      APP_ORIGIN: https://antoniosmithmd.com
+      RAILS_ASSUME_SSL: "true"
+      RAILS_FORCE_SSL: "false"
+      ZOTERO_LIBRARY_TYPE: user
+      ZOTERO_LIBRARY_ID: ${ZOTERO_LIBRARY_ID:-}
+      ZOTERO_API_KEY: ${ZOTERO_API_KEY:-}
+      ZOTERO_STYLE: american-medical-association
+      # Duo (optional second factor alongside security keys)
+      DUO_CLIENT_ID: ${DUO_CLIENT_ID:-}
+      DUO_CLIENT_SECRET: ${DUO_CLIENT_SECRET:-}
+      DUO_API_HOST: ${DUO_API_HOST:-}
+      DUO_USERNAME: ${DUO_USERNAME:-}
+    volumes:
+      - /mnt/main/configs/antoniosmithmd/storage:/rails/storage
+    networks:
+      - asmithlabs-edge
+
+networks:
+  asmithlabs-edge:
+    external: true
+    name: asmithlabs-edge

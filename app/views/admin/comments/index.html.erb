@@ -1,0 +1,17 @@
+<h1>Comments</h1>
+<table class="admin-table">
+  <thead><tr><th>Comment</th><th>Post</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+  <% @comments.each do |c| %>
+    <tr>
+      <td><strong><%= c.author_name %></strong> <span class="muted"><%= time_ago_in_words(c.created_at) %> ago · <%= c.score %> pts</span><br><%= truncate(c.body, length: 200) %></td>
+      <td><%= link_to c.post.title, post_path(c.post, anchor: "c#{c.id}") %></td>
+      <td><%= c.approved ? "visible" : "pending" %></td>
+      <td class="actions">
+        <%= button_to (c.approved ? "hide" : "approve"), admin_comment_path(c, approved: c.approved ? "0" : "1"), method: :patch, class: "link" %>
+        <%= button_to "delete", admin_comment_path(c), method: :delete, class: "link-danger", form: { onsubmit: "return confirm('Delete comment and its replies?')" } %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

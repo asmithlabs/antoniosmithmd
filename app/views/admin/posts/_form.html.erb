@@ -1,0 +1,35 @@
+<%= form_with model: [:admin, post], class: "post-form" do |f| %>
+  <% if post.errors.any? %><div class="errors"><%= post.errors.full_messages.to_sentence %></div><% end %>
+  <div class="form-grid">
+    <div class="form-main">
+      <label>Title <%= f.text_field :title, required: true, class: "big" %></label>
+      <label>Excerpt / meta description <small>(~155 chars, shown in Google + post lists)</small>
+        <%= f.text_area :excerpt, rows: 2, maxlength: 300 %></label>
+      <label>Body</label>
+      <%= f.text_area :body, rows: 22, data: { tiptap: true } %>
+    </div>
+    <aside class="form-side">
+      <fieldset><legend>Publishing</legend>
+        <label>Publish at <small>(blank = draft; future = scheduled)</small> <%= f.datetime_local_field :published_at %></label>
+        <label>URL slug <small>(blank = from title)</small> <%= f.text_field :slug %></label>
+        <label>Category <%= f.select :category, Post::CATEGORIES.invert, include_blank: "— none —" %></label>
+        <label>Tags <small>(comma-separated)</small> <%= f.text_field :tags, placeholder: "epic, cds, governance" %></label>
+        <label class="check"><%= f.check_box :featured %> Featured on home page</label>
+      </fieldset>
+      <fieldset><legend>Comments</legend>
+        <label class="check"><%= f.check_box :comments_enabled %> Allow comments</label>
+        <label>Open comments at <small>(delay — blank = immediately)</small> <%= f.datetime_local_field :comments_open_at %></label>
+        <div class="quick">
+          <% { "+1 day" => 1.day, "+3 days" => 3.days, "+1 week" => 1.week }.each do |l, d| %>
+            <button type="button" class="chip" onclick="(function(b){var p=document.getElementById('post_published_at').value;var base=p?new Date(p):new Date();var t=new Date(base.getTime()+<%= d.to_i * 1000 %>);t.setMinutes(t.getMinutes()-t.getTimezoneOffset());document.getElementById('post_comments_open_at').value=t.toISOString().slice(0,16)})(this)"><%= l %></button>
+          <% end %>
+          <button type="button" class="chip" onclick="document.getElementById('post_comments_open_at').value=''">now</button>
+        </div>
+        <small class="muted">Delay is counted from the publish time.</small>
+        <label class="check"><%= f.check_box :comments_moderated %> Hold new comments for approval</label>
+      </fieldset>
+      <%= f.submit "Save", class: "btn" %>
+      <% if post.persisted? && post.published? %> <%= link_to "view →", post_path(post), target: "_blank" %><% end %>
+    </aside>
+  </div>
+<% end %>

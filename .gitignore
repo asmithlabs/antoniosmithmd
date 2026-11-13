@@ -1,0 +1,7 @@
+!/storage/.keep
+.env
+/.env
+/config/master.key
+/editor/node_modules
+/storage/*
+/config/credentials.yml.enc

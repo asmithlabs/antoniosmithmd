@@ -1,0 +1,22 @@
+<h1>Connections</h1>
+<p class="muted">API tokens for your Obsidian sync and AI agents. Agents should get <strong>drafts only</strong> tokens: they can write drafts, and nothing goes live until you publish it here.</p>
+<% if flash[:token] %>
+  <div class="flash">Copy this token now — it won't be shown again:<br><code class="token"><%= flash[:token] %></code></div>
+<% end %>
+<table class="admin-table">
+  <thead><tr><th>Name</th><th>Access</th><th>Last used</th><th></th></tr></thead>
+  <tbody>
+  <% @tokens.each do |t| %>
+    <tr><td><%= t.name %></td><td><%= t.scope %></td><td class="muted"><%= t.last_used_at ? "#{time_ago_in_words(t.last_used_at)} ago" : "never" %></td>
+      <td class="actions"><%= button_to "revoke", admin_api_token_path(t), method: :delete, class: "link-danger", form: { onsubmit: "return confirm('Revoke this token?')" } %></td></tr>
+  <% end %>
+  <% if @tokens.empty? %><tr><td colspan="4" class="muted">No tokens yet.</td></tr><% end %>
+  </tbody>
+</table>
+<%= form_with model: [:admin, ApiToken.new], class: "post-form tok-form" do |f| %>
+  <label>Name <%= f.text_field :name, placeholder: "Obsidian (MacBook) / Hermes", required: true %></label>
+  <label>Access <%= f.select :scope, ApiToken::SCOPES.map { |k, v| [v, k] } %></label>
+  <%= f.submit "Create token", class: "btn" %>
+<% end %>
+<h2 class="section">Obsidian <span class="tag-r">*obsidian*</span></h2>
+<p>Add <code>publish: true</code> to a note's frontmatter, then run the sync script from <code>script/obsidian_sync.rb</code> (see README). Notes without it are sent as drafts.</p>

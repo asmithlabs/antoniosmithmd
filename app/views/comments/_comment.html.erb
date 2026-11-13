@@ -1,0 +1,24 @@
+<% kids = tree[comment.id] || [] %>
+<details class="cmt" id="c<%= comment.id %>" open>
+  <summary>
+    <span class="tog"></span>
+    <strong><%= comment.author_name %></strong>
+    <span class="muted"><%= pluralize(comment.score, "point") %> · <time datetime="<%= comment.created_at.iso8601 %>" title="<%= comment.created_at %>"><%= time_ago_in_words(comment.created_at) %> ago</time><% if kids.any? %> · <%= pluralize(kids.size, "reply") %><% end %></span>
+  </summary>
+  <div class="cmt-row">
+    <div class="votes">
+      <%= button_to "▲", vote_post_comment_path(post, comment, dir: "up"), class: ["v", ("on" if session.dig(:votes, comment.id.to_s).to_i == 1)], title: "Upvote", form_class: "vf" %>
+      <%= button_to "▼", vote_post_comment_path(post, comment, dir: "down"), class: ["v", ("on" if session.dig(:votes, comment.id.to_s).to_i == -1)], title: "Downvote", form_class: "vf" %>
+    </div>
+    <div class="cmt-main">
+      <div class="cmt-body"><%= simple_format(comment.body, {}, wrapper_tag: "p") %></div>
+      <p class="cmt-actions">
+        <a href="#c<%= comment.id %>">permalink</a>
+        <% if post.comments_open? %>
+          <details class="reply"><summary>reply</summary><%= render "comments/form", post:, parent: comment %></details>
+        <% end %>
+      </p>
+      <% if kids.any? %><div class="children"><%= render partial: "comments/comment", collection: kids, locals: { tree:, post: } %></div><% end %>
+    </div>
+  </div>
+</details>

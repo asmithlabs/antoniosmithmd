@@ -1,0 +1,22 @@
+# Usage:  cp .env.example .env  (fill it in)  then:  docker compose up -d --build
+# With Cloudflare Tunnel (public HTTPS, no open ports):  docker compose --profile tunnel up -d --build
+services:
+  blog:
+    build: .
+    restart: unless-stopped
+    ports: ["8080:3000"]
+    env_file: .env
+    environment:
+      RAILS_ASSUME_SSL: ${RAILS_ASSUME_SSL:-true}
+      RAILS_FORCE_SSL: "false"
+    volumes:
+      - ./storage:/rails/storage   # SQLite database (run once: sudo chown -R 1000:1000 storage)
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:-}
+    depends_on: [blog]

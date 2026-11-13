@@ -1,0 +1,69 @@
+<% content_for :title, @post.title %>
+<% content_for :description, @post.description %>
+<% content_for :og_type, "article" %>
+<% content_for :main_class, "with-toc" if @post.toc.size >= 2 %>
+<% content_for :head do %>
+  <meta property="article:published_time" content="<%= @post.published_at.iso8601 %>">
+  <meta property="article:modified_time" content="<%= @post.updated_or_published.iso8601 %>">
+  <% if @post.category %><meta property="article:section" content="<%= @post.category_name %>"><% end %>
+  <% @post.tag_list.each do |t| %><meta property="article:tag" content="<%= t %>"><% end %>
+  <script type="application/ld+json"><%= raw({
+    "@context" => "https://schema.org", "@type" => "BlogPosting",
+    headline: @post.title, description: @post.description,
+    datePublished: @post.published_at.iso8601, dateModified: @post.updated_or_published.iso8601,
+    mainEntityOfPage: post_url(@post), url: post_url(@post),
+    articleSection: @post.category_name, keywords: @post.tag_list.join(", "),
+    wordCount: @post.plain_text.split.size,
+    author: { "@type" => "Person", name: SITE[:name], url: root_url, sameAs: [SITE.dig(:links, :linkedin), SITE.dig(:links, :github)].compact },
+    commentCount: @tree.values.flatten.size,
+    citation: @post.cited_references.map { |r| { "@type" => "CreativeWork", name: r.title, author: r.authors.to_s.split(";").first&.strip, datePublished: r.year.presence, url: r.link }.compact }.presence
+  }.compact.to_json) %></script>
+<% end %>
+
+<article class="post">
+  <header>
+    <p class="meta">
+      <time datetime="<%= @post.published_at.iso8601 %>"><%= @post.published_at.strftime("%B %-d, %Y") %></time>
+      · <%= @post.reading_minutes %> min read
+      <% if @post.category %> · <%= link_to @post.category_name, category_path(@post.category) %><% end %>
+    </p>
+    <h1><%= @post.title %></h1>
+    <% if @post.excerpt.present? %><p class="lede"><%= @post.excerpt %></p><% end %>
+  </header>
+
+  <div class="post-grid">
+  <% if @post.toc.size >= 2 %>
+    <nav class="toc" aria-label="Table of contents">
+      <p class="toc-head"><span>CONTENTS</span><span class="tagname">*toc*</span></p>
+      <ol>
+        <% n = 0; m = 0 %>
+        <% @post.toc.each do |h| %>
+          <% if h[:level] == 2 then n += 1; m = 0; num = "#{n}." else m += 1; num = "#{n}.#{m}" end %>
+          <li class="l<%= h[:level] %>"><a href="#<%= h[:id] %>"><span class="num"><%= num %></span><span class="t"><%= h[:text] %></span><span class="dots"></span><span class="ref">|<%= h[:id].truncate(22, omission: "") %>|</span></a></li>
+        <% end %>
+      </ol>
+    </nav>
+  <% end %>
+  <div class="prose"><%= @post.rendered_html %></div>
+  </div>
+
+  <% if @post.tag_list.any? %>
+    <p class="tags">tags: <% @post.tag_list.each do |t| %><%= link_to t, tag_path(t) %> <% end %></p>
+  <% end %>
+
+  <% if @related.any? %>
+    <h2 class="section">Related <span class="tag-r">*related*</span></h2>
+    <ul class="linklist"><% @related.each do |r| %><li><%= link_to r.title, post_path(r) %> <span class="muted"><%= r.published_at.to_date %></span></li><% end %></ul>
+  <% end %>
+
+  <%= render "comments/section", post: @post, tree: @tree %>
+  <p class="back"><%= link_to "← all posts", posts_path %></p>
+</article>
+<script>
+(() => {
+  const links = [...document.querySelectorAll(".toc a")]; if (!links.length) return
+  const map = new Map(links.map(a => [a.getAttribute("href").slice(1), a]))
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { links.forEach(l => l.classList.remove("active")); map.get(e.target.id)?.classList.add("active") } }), { rootMargin: "0px 0px -70% 0px" })
+  map.forEach((_, id) => { const h = document.getElementById(id); if (h) io.observe(h) })
+})()
+</script>
