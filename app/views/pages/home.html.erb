@@ -13,9 +13,10 @@
 <p class="quiet-inline"><%= link_to "cv", SITE.dig(:links, :cv) %> · <%= link_to "linkedin", SITE.dig(:links, :linkedin), rel: "me" %> · <%= link_to "github", SITE.dig(:links, :github), rel: "me" %> · <%= link_to "homelab wiki", SITE.dig(:links, :wiki) %></p>
 
 <h2 class="section">Projects <span class="tag-r">*projects*</span></h2>
-<% if @projects.any? || SITE[:projects].present? %>
+<% if @projects.any? || @repos.any? || SITE[:projects].present? %>
   <ul class="linklist">
     <% @projects.each do |p| %><li><%= link_to p.display_title, post_path(p) %> <span class="muted"><%= p.description.truncate(60) %></span></li><% end %>
+    <% @repos.each do |r| %><li><%= link_to r.name, r.homepage || r.url %> <span class="muted"><%= r.description.to_s.truncate(60) %><%= " · #{r.language}" if r.language %></span></li><% end %>
     <% Array(SITE[:projects]).each do |pr| %><li><%= link_to pr[:name], pr[:url] %> <span class="muted"><%= pr[:description].to_s.truncate(60) %></span></li><% end %>
   </ul>
   <p><%= link_to "all projects →", projects_path, class: "more" %></p>

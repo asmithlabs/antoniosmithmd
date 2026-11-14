@@ -69,6 +69,12 @@ They can't publish, edit live posts, or moderate. Posts show their source in adm
     PATCH  /api/v1/comments/:id {approved}      # full tokens only
     Header: Authorization: Bearer asm_...
 
+## Projects from GitHub
+Public repos with the **`portfolio`** topic (from the accounts in `config/site.yml` → `github.owners`) appear on
+/projects and the home page with description, language, last update and stars, refreshed hourly.
+To add one: GitHub repo → ⚙ next to *About* → Topics → `portfolio`. Private repos never appear, even if tagged.
+Optional `GITHUB_TOKEN` (no scopes needed) only raises the rate limit.
+
 ## Zotero citations
 1. zotero.org → Settings → Security → **Create new private key**: read-only access to your library.
    Your **userID** is shown on that page.

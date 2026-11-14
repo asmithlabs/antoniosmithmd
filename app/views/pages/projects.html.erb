@@ -1,11 +1,41 @@
 <% content_for :title, "Projects" %>
+<% content_for :description, "Projects by #{SITE[:name]}: write-ups and open-source code." %>
 <section class="hero"><p class="eyebrow">projects</p><h1>Projects</h1></section>
-<ul class="post-list">
-<% @projects.each do |p| %>
-  <li><p class="meta"><%= p.published_at.strftime("%Y-%m-%d") %></p><h2><%= link_to p.display_title, post_path(p) %></h2><p class="excerpt"><%= p.description %></p></li>
+
+<% if @projects.any? %>
+  <h2 class="section">Write-ups <span class="tag-r">*write-ups*</span></h2>
+  <ul class="post-list">
+  <% @projects.each do |p| %>
+    <li><p class="meta"><%= p.published_at.strftime("%Y-%m-%d") %></p><h2><%= link_to p.display_title, post_path(p) %></h2><p class="excerpt"><%= p.description %></p></li>
+  <% end %>
+  </ul>
 <% end %>
-<% Array(SITE[:projects]).each do |pr| %>
-  <li><h2><%= link_to pr[:name], pr[:url] %></h2><p class="excerpt"><%= pr[:description] %></p></li>
+
+<% if @repos.any? %>
+  <h2 class="section">Code <span class="tag-r">*github*</span></h2>
+  <ul class="post-list repos">
+  <% @repos.each do |r| %>
+    <li>
+      <p class="meta">
+        <% if r.language %><span class="lang"><%= r.language %></span> · <% end %>updated <%= r.pushed_at ? time_ago_in_words(r.pushed_at) + " ago" : "—" %><% if r.stars.to_i.positive? %> · ★ <%= r.stars %><% end %>
+      </p>
+      <h2><%= link_to r.name, r.url, rel: "noopener" %></h2>
+      <% if r.description.present? %><p class="excerpt"><%= r.description %></p><% end %>
+      <p class="repo-links">
+        <%= link_to "code ↗", r.url, rel: "noopener" %>
+        <% if r.homepage %> · <%= link_to "live ↗", r.homepage, rel: "noopener" %><% end %>
+        <% r.topics.first(5).each do |t| %> <span class="repo-topic">*<%= t %>*</span><% end %>
+      </p>
+    </li>
+  <% end %>
+  </ul>
 <% end %>
-</ul>
-<% if @projects.empty? && SITE[:projects].blank? %><p class="muted">Coming soon.</p><% end %>
+
+<% Array(SITE[:projects]).presence&.then do |pinned| %>
+  <h2 class="section">Elsewhere <span class="tag-r">*elsewhere*</span></h2>
+  <ul class="linklist">
+    <% pinned.each do |pr| %><li><%= link_to pr[:name], pr[:url] %> <span class="muted"><%= pr[:description] %></span></li><% end %>
+  </ul>
+<% end %>
+
+<% if @projects.empty? && @repos.empty? && SITE[:projects].blank? %><p class="muted">Coming soon.</p><% end %>
