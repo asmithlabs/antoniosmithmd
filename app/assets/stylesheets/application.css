@@ -256,3 +256,4 @@ h1 code,h2 code{color:var(--gold);font:inherit}
 .diff{border:1px solid var(--rule);padding:.8em 2ch;margin:1em 0;line-height:1.7;white-space:pre-wrap}
 .diff del,p del{background:color-mix(in srgb,var(--red) 18%,transparent);color:inherit;text-decoration:line-through}
 .diff ins,p ins{background:color-mix(in srgb,var(--teal) 18%,transparent);color:inherit;text-decoration:none}
+.repos .lang{color:var(--teal)}.repo-links{font-size:.88rem;margin:.2em 0 0}.repo-links a{color:var(--gold)}.repo-topic{color:var(--slate)}
