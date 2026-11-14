@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_13_212302) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_14_001253) do
   create_table "api_tokens", force: :cascade do |t|
     t.string "name"
     t.string "token_digest"
@@ -44,6 +44,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_13_212302) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["external_id"], name: "index_passkeys_on_external_id", unique: true
+  end
+
+  create_table "post_revisions", force: :cascade do |t|
+    t.integer "post_id", null: false
+    t.string "title"
+    t.text "title_html"
+    t.text "body"
+    t.text "excerpt"
+    t.string "editor"
+    t.datetime "created_at", null: false
+    t.index ["post_id"], name: "index_post_revisions_on_post_id"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -86,4 +97,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_13_212302) do
 
   add_foreign_key "comments", "comments", column: "parent_id"
   add_foreign_key "comments", "posts"
+  add_foreign_key "post_revisions", "posts"
+
+  # Virtual tables defined in this database.
+  # Note that virtual tables may not work with other database engines. Be careful if changing database.
+  create_virtual_table "post_search", "fts5", ["title", "body", "tags", "tokenize='unicode61 remove_diacritics 2'", "prefix='2 3 4'"]
 end

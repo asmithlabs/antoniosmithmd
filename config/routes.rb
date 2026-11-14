@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
   root "pages#home"
   get "projects" => "pages#projects"
+  get "search" => "search#index"
   resources :posts, only: %i[index show], path: "blog" do
     resources :comments, only: :create do
       post :vote, on: :member
@@ -36,7 +37,11 @@ Rails.application.routes.draw do
     resources :passkeys, only: %i[index create destroy] do
       post :options, on: :collection
     end
-    resources :posts, except: :show
+    resources :posts, except: :show do
+      resources :revisions, only: %i[index show] do
+        post :restore, on: :member
+      end
+    end
     resources :comments, only: %i[index update destroy]
   end
 end

@@ -56,3 +56,5 @@ gem "nokogiri", "~> 1.19"
 gem "webauthn", "~> 3.5"
 
 gem "jwt", "~> 3.3"
+
+gem "diff-lcs", "~> 2.0"

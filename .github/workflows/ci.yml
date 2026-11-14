@@ -36,7 +36,7 @@ jobs:
           bin/rails runner 'Post.first.update!(published_at: 1.hour.ago)'
           bin/rails server -p 3000 -d && sleep 8
           slug=$(bin/rails runner 'puts Post.published.first.slug' 2>/dev/null | tail -n1)
-          for u in / /blog /projects /blog/$slug /feed.xml /sitemap.xml /robots.txt /admin/login /up; do
+          for u in / /blog /projects /search "/search?q=draft" /blog/$slug /feed.xml /sitemap.xml /robots.txt /admin/login /up; do
             code=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3000$u")
             echo "$u $code"; [ "$code" = 200 ] || exit 1
           done

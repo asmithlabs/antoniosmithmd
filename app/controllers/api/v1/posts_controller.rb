@@ -26,6 +26,7 @@ module Api
         end
         attrs[:source] = params[:source].presence || (params[:obsidian].present? ? "obsidian" : "api:#{token.name}")
         attrs[:source_path] = params[:source_path] if params[:source_path]
+        post.revision_editor = attrs[:source]
         post.assign_attributes(attrs.compact)
         post.published_at = nil if !token.publish? && post.new_record?
         if post.save
