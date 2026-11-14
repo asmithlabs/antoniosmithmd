@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   root "pages#home"
   get "projects" => "pages#projects"
   get "search" => "search#index"
+  get "graph" => "graph#show"
   resources :posts, only: %i[index show], path: "blog" do
     resources :comments, only: :create do
       post :vote, on: :member
