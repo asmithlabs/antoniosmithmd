@@ -1,0 +1,19 @@
+<% content_for :title, @q.present? ? "Search: #{@q}" : "Search" %>
+<% content_for :head do %><meta name="robots" content="noindex"><% end %>
+<section class="hero"><p class="eyebrow">search</p><h1>Search</h1></section>
+<%= form_with url: search_path, method: :get, class: "searchform", role: "search" do %>
+  <input type="search" name="q" value="<%= @q %>" placeholder="search posts, notes, projects…" aria-label="Search" autofocus>
+  <button class="btn">search</button>
+<% end %>
+<% if @q.present? %>
+  <p class="muted"><%= pluralize(@results.size, "result") %> for “<%= @q %>”</p>
+  <ol class="post-list">
+    <% @results.each do |post, snippet| %>
+      <li>
+        <p class="meta"><%= post.published_at.strftime("%Y-%m-%d") %><% if post.category %> · <%= post.category %><% end %></p>
+        <h2><%= link_to post.display_title, post_path(post) %></h2>
+        <p class="excerpt snippet"><%= snippet %></p>
+      </li>
+    <% end %>
+  </ol>
+<% end %>

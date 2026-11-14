@@ -67,3 +67,37 @@
   map.forEach((_, id) => { const h = document.getElementById(id); if (h) io.observe(h) })
 })()
 </script>
+<script>
+// Citation cards: hover / keyboard focus / tap on [n] shows the full reference.
+(() => {
+  const cites = document.querySelectorAll(".prose a.cite"); if (!cites.length) return
+  const card = document.createElement("div"); card.className = "cite-card"; card.setAttribute("role", "tooltip"); card.hidden = true
+  document.body.append(card)
+  let hideT, current
+  const show = a => {
+    const li = document.querySelector(a.getAttribute("href")); if (!li) return
+    clearTimeout(hideT); current = a
+    const body = li.querySelector(".ref-body")?.innerHTML || li.innerHTML
+    const link = li.querySelector(".ref-link")
+    const n = a.getAttribute("href").replace("#ref-", "")
+    card.innerHTML = `<p class="cc-n">[${n}]</p><p>${body}</p><p class="cc-actions">${link ? `<a href="${link.href}" target="_blank" rel="noopener">open source ↗</a> · ` : ""}<a href="#ref-${n}">jump to reference list</a></p>`
+    card.hidden = false
+    const r = a.getBoundingClientRect(), w = Math.min(420, innerWidth - 16)
+    card.style.width = w + "px"
+    card.style.left = Math.max(8, Math.min(r.left + scrollX - 20, scrollX + innerWidth - w - 8)) + "px"
+    const below = r.bottom + scrollY + 8, above = r.top + scrollY - card.offsetHeight - 8
+    card.style.top = (r.bottom + card.offsetHeight + 16 > innerHeight && above > scrollY ? above : below) + "px"
+    a.setAttribute("aria-describedby", "cite-card")
+  }
+  const hide = () => { hideT = setTimeout(() => { card.hidden = true; current = null }, 200) }
+  card.id = "cite-card"
+  card.addEventListener("mouseenter", () => clearTimeout(hideT)); card.addEventListener("mouseleave", hide)
+  cites.forEach(a => {
+    a.addEventListener("mouseenter", () => show(a)); a.addEventListener("mouseleave", hide)
+    a.addEventListener("focus", () => show(a)); a.addEventListener("blur", hide)
+    a.addEventListener("click", e => { if (matchMedia("(hover: none)").matches && current !== a) { e.preventDefault(); show(a) } })   // phones: first tap shows the card
+  })
+  document.addEventListener("keydown", e => { if (e.key === "Escape") card.hidden = true })
+  document.addEventListener("click", e => { if (!card.hidden && !card.contains(e.target) && !e.target.closest("a.cite")) card.hidden = true })
+})()
+</script>

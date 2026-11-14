@@ -1,0 +1,18 @@
+<div class="admin-head"><h1>History: <%= @post.display_title %></h1><%= link_to "← back to editor", edit_admin_post_path(@post) %></div>
+<p class="muted">Every save keeps the previous version (last 100). Open one to compare with the current text or restore it.</p>
+<table class="admin-table">
+  <thead><tr><th>Saved</th><th>By</th><th>Title then</th><th>Words</th><th></th></tr></thead>
+  <tbody>
+  <tr><td><strong>current</strong></td><td class="muted">—</td><td><%= @post.display_title %></td><td class="muted"><%= @post.plain_text.split.size %></td><td></td></tr>
+  <% @revisions.each do |r| %>
+    <tr>
+      <td><%= r.created_at.strftime("%b %-d, %Y %-l:%M %p") %> <span class="muted">(<%= time_ago_in_words(r.created_at) %> ago)</span></td>
+      <td class="muted"><%= r.editor %></td>
+      <td><%= r.title %></td>
+      <td class="muted"><%= r.plain_text.split.size %></td>
+      <td class="actions"><%= link_to "compare", admin_post_revision_path(@post, r) %></td>
+    </tr>
+  <% end %>
+  <% if @revisions.empty? %><tr><td colspan="5" class="muted">No earlier versions yet — history starts with the next save.</td></tr><% end %>
+  </tbody>
+</table>

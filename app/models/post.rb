@@ -14,6 +14,32 @@ class Post < ApplicationRecord
   ALLOWED_ATTRS = %w[href src alt title class id data-type data-kind data-cite data-locator open colspan rowspan target rel].freeze
 
   has_many :comments, dependent: :destroy
+  has_many :revisions, -> { order(created_at: :desc) }, class_name: "PostRevision", dependent: :delete_all
+
+  attr_accessor :revision_editor   # who made this change ("admin", "api:Hermes", "obsidian")
+  before_update :snapshot_revision, if: -> { will_save_change_to_body? || will_save_change_to_title_html? || will_save_change_to_title? || will_save_change_to_excerpt? }
+  after_save :reindex_search!
+  after_destroy { self.class.connection.exec_delete("DELETE FROM post_search WHERE rowid = ?", "fts", [id]) }
+
+  # ---- Full-text search (SQLite FTS5) ------------------------------------
+  def reindex_search!
+    c = self.class.connection
+    c.exec_delete("DELETE FROM post_search WHERE rowid = ?", "fts", [id])
+    c.exec_insert("INSERT INTO post_search(rowid, title, body, tags) VALUES (?, ?, ?, ?)", "fts", [id, title.to_s, plain_text, tags.to_s])
+  end
+
+  # Returns [[post, snippet_html], ...] for published posts, best match first.
+  def self.search(q, limit: 30)
+    terms = q.to_s.scan(/[\p{L}\p{N}]+/).first(8)
+    return [] if terms.empty?
+    match = terms.map { |t| %("#{t}"*) }.join(" ")
+    rows = connection.select_rows(<<~SQL, "fts", [match, limit * 2])
+      SELECT rowid, snippet(post_search, 1, '[[[', ']]]', '…', 18) FROM post_search
+      WHERE post_search MATCH ? ORDER BY bm25(post_search, 10.0, 1.0, 5.0) LIMIT ?
+    SQL
+    posts = published.where(id: rows.map(&:first)).index_by(&:id)
+    rows.filter_map { |id, snip| (p = posts[id]) && [p, ERB::Util.h(snip).gsub("[[[", "<mark>").gsub("]]]", "</mark>").html_safe] }.first(limit)
+  end
 
   validates :title, :body, presence: true
   validates :slug, presence: true, uniqueness: true, format: { with: /\A[a-z0-9-]+\z/ }
@@ -36,7 +62,9 @@ class Post < ApplicationRecord
   def to_param = slug
   def category_name = CATEGORIES[category]
   def tag_list = tags.to_s.split(",").map(&:strip).reject(&:blank?)
-  def plain_text = Nokogiri::HTML.fragment(rendered_html).text.squish
+  # Text as written (citations as [@key]); used for revision diffs.
+  def source_text = Nokogiri::HTML.fragment(body.to_s).xpath(".//text()").map(&:text).join(" ").squish
+  def plain_text = Nokogiri::HTML.fragment(rendered_html).xpath(".//text()").map(&:text).join(" ").squish
   def reading_minutes = [(plain_text.split.size / 220.0).ceil, 1].max
   def description = excerpt.presence || plain_text.truncate(155)
   def updated_or_published = [updated_at, published_at].compact.max
@@ -64,6 +92,12 @@ class Post < ApplicationRecord
   public
 
   private
+
+  def snapshot_revision
+    revisions.create!(title: title_was, title_html: title_html_was, body: body_was, excerpt: excerpt_was,
+                      editor: revision_editor.presence || "admin")
+    revisions.offset(100).delete_all if revisions.count > 100   # keep the last 100 versions
+  end
 
   def normalize_title
     return if title_html.blank?

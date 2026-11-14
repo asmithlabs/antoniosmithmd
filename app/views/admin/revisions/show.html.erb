@@ -1,0 +1,5 @@
+<div class="admin-head"><h1>Version from <%= @revision.created_at.strftime("%b %-d, %Y %-l:%M %p") %></h1><%= link_to "← all versions", admin_post_revisions_path(@post) %></div>
+<p class="muted">Saved by <%= @revision.editor %>. Changes since then: <del>removed</del> · <ins>added</ins></p>
+<% if @revision.title != @post.title %><p>Title then: <strong><%= @revision.title %></strong> → now: <strong><%= @post.title %></strong></p><% end %>
+<div class="diff"><%= @diff %></div>
+<%= button_to "Restore this version", restore_admin_post_revision_path(@post, @revision), class: "btn", form: { onsubmit: "return confirm('Replace the current text with this version? The current text will be kept in history.')" } %>

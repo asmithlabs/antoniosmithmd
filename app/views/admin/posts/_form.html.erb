@@ -32,6 +32,7 @@
       </fieldset>
       <%= f.submit "Save", class: "btn" %>
       <% if post.persisted? && post.published? %> <%= link_to "view →", post_path(post), target: "_blank" %><% end %>
+      <% if post.persisted? %><p><%= link_to "history (#{post.revisions.count} earlier versions)", admin_post_revisions_path(post) %></p><% end %>
     </aside>
   </div>
 <% end %>
