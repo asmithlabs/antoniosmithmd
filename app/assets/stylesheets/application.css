@@ -280,3 +280,4 @@ main.wide-graph{max-width:140ch}
 .kg-text{margin:1em 0}.kg-text summary{cursor:pointer;color:var(--teal)}
 .connections .muted{font-size:.85rem}
 @media (max-width:600px){.kg-panel{position:static;width:auto;max-height:none;box-shadow:none;border-width:1px 0 0}}
+.repos .lang{color:var(--teal)}.repo-links{font-size:.88rem;margin:.2em 0 0}.repo-links a{color:var(--gold)}.repo-topic{color:var(--slate)}

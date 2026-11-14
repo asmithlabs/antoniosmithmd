@@ -20,6 +20,10 @@ informatics: |
 education: |
   MD · MBA, Indiana University Kelley School of Business ·
   Clinical Informatics Fellowship, Regenstrief Institute / IU
+# Projects from GitHub: public repos with this topic, from these accounts (refreshes hourly).
+github:
+  owners: [asmithlabs]
+  topic: portfolio
 links:
   wiki: "https://wiki.asmithlabs.com"
   github: "https://github.com/asmithlabs"

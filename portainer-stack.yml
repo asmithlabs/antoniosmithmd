@@ -22,6 +22,7 @@ services:
       ZOTERO_LIBRARY_ID: ${ZOTERO_LIBRARY_ID:-}
       ZOTERO_API_KEY: ${ZOTERO_API_KEY:-}
       ZOTERO_STYLE: american-medical-association
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}   # optional, only raises GitHub's rate limit for the Projects list
       # Duo (optional second factor alongside security keys)
       DUO_CLIENT_ID: ${DUO_CLIENT_ID:-}
       DUO_CLIENT_SECRET: ${DUO_CLIENT_SECRET:-}
