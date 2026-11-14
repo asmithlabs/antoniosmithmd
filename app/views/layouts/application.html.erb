@@ -34,7 +34,7 @@
 <% end %>
   <header class="site-header"><div class="wrap">
     <%= link_to SITE[:name], root_path, class: "brand" %>
-    <nav><%= link_to "home", root_path %><%= link_to "blog", posts_path %><%= link_to "projects", projects_path %><%= link_to "search", search_path %><%= link_to "cv", SITE.dig(:links,:cv) %><button class="theme-btn" type="button" title="Theme: auto / light / dark" onclick="(function(b){var o=['auto','light','dark'],d=document.documentElement,c=d.dataset.theme||'auto',n=o[(o.indexOf(c)+1)%3];if(n==='auto'){delete d.dataset.theme}else{d.dataset.theme=n}try{n==='auto'?localStorage.removeItem('theme'):localStorage.setItem('theme',n)}catch(e){}b.textContent='['+n+']'})(this)">[<span class="th-l">auto</span>]</button>
+    <nav><%= link_to "home", root_path %><%= link_to "blog", posts_path %><%= link_to "projects", projects_path %><%= link_to "graph", graph_path %><%= link_to "search", search_path %><%= link_to "cv", SITE.dig(:links,:cv) %><button class="theme-btn" type="button" title="Theme: auto / light / dark" onclick="(function(b){var o=['auto','light','dark'],d=document.documentElement,c=d.dataset.theme||'auto',n=o[(o.indexOf(c)+1)%3];if(n==='auto'){delete d.dataset.theme}else{d.dataset.theme=n}try{n==='auto'?localStorage.removeItem('theme'):localStorage.setItem('theme',n)}catch(e){}b.textContent='['+n+']'})(this)">[<span class="th-l">auto</span>]</button>
 <script>(function(){var b=document.currentScript.previousElementSibling;b.textContent='['+(document.documentElement.dataset.theme||'auto')+']'})()</script></nav>
   </div></header>
   <% if flash.any? %><div class="wrap"><% flash.each do |k, m| %><p class="flash <%= k %>"><%= m %></p><% end %></div><% end %>

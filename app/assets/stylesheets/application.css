@@ -256,3 +256,27 @@ h1 code,h2 code{color:var(--gold);font:inherit}
 .diff{border:1px solid var(--rule);padding:.8em 2ch;margin:1em 0;line-height:1.7;white-space:pre-wrap}
 .diff del,p del{background:color-mix(in srgb,var(--red) 18%,transparent);color:inherit;text-decoration:line-through}
 .diff ins,p ins{background:color-mix(in srgb,var(--teal) 18%,transparent);color:inherit;text-decoration:none}
+
+/* knowledge graph */
+main.wide-graph{max-width:140ch}
+.kg-controls{display:flex;gap:2.5ch;flex-wrap:wrap;align-items:center;font-size:.9rem;margin:.5em 0}
+.kg-controls label{cursor:pointer}.kg-legend{color:var(--slate)}
+.kg-key{display:inline-block;width:.8em;height:.8em;border-radius:50%;vertical-align:-.05em;border:1.5px solid var(--bg)}
+.kg-key.post{background:var(--teal)}.kg-key.project{background:var(--bg);border-color:var(--teal);box-shadow:inset 0 0 0 3px var(--teal)}
+.kg-key.paper{background:var(--gold)}.kg-key.tag{background:var(--slate)}
+.kg-wrap{position:relative;border:1px solid var(--rule)}
+#kg{display:block;width:100%;height:min(72vh,680px);cursor:grab;touch-action:none;background:var(--bg)}
+.kg-edge{stroke:var(--rule);stroke-width:1}.kg-edge.link{stroke:var(--teal);stroke-width:1.6}.kg-edge.cites{stroke:var(--gold-l)}
+.kg-edge.dim{opacity:.08}
+.kg-node{cursor:pointer}.kg-node circle{stroke:var(--bg);stroke-width:1.5}
+.kg-node.post circle{fill:var(--teal)}.kg-node.project circle{fill:var(--bg);stroke:var(--teal);stroke-width:3}
+.kg-node.paper circle{fill:var(--gold)}.kg-node.tag circle{fill:var(--slate)}
+.kg-node text{font:12px var(--mono);fill:var(--ink);paint-order:stroke;stroke:var(--bg);stroke-width:3px;pointer-events:none}
+.kg-node.paper text,.kg-node.tag text{font-size:10.5px;fill:var(--slate)}
+.kg-node.dim{opacity:.15}.kg-node:focus{outline:none}.kg-node:focus circle{stroke:var(--gold);stroke-width:3}
+.kg-panel{position:absolute;top:.6em;right:.6em;width:min(36ch,60%);max-height:calc(100% - 1.2em);overflow:auto;background:var(--bg);border:1px solid var(--teal);padding:.6em 1.5ch;font-size:.88rem;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.kg-panel h2{font-size:1rem;margin:.1em 0 .4em}.kg-panel ul{list-style:none;padding:0;margin:.4em 0}.kg-panel li{margin:.2em 0}
+.kg-ptype{margin:0;color:var(--slate);text-transform:uppercase;font-size:.75rem}
+.kg-text{margin:1em 0}.kg-text summary{cursor:pointer;color:var(--teal)}
+.connections .muted{font-size:.85rem}
+@media (max-width:600px){.kg-panel{position:static;width:auto;max-height:none;box-shadow:none;border-width:1px 0 0}}

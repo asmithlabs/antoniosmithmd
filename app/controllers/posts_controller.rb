@@ -10,7 +10,9 @@ class PostsController < ApplicationController
     @post = Post.published.find_by!(slug: params[:id])
     @tree = Comment.tree_for(@post)
     @comment = @post.comments.new
-    @related = Post.published.where(category: @post.category).where.not(id: @post.id).limit(3)
+    graph = KnowledgeGraph.current
+    @related = graph.related(@post)
+    @backlinks = graph.backlinks(@post)
   end
 
   def feed = @posts = Post.published.limit(20)

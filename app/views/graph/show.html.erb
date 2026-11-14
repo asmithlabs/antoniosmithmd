@@ -1,0 +1,128 @@
+<% content_for :title, "Graph" %>
+<% content_for :description, "A map of how #{SITE[:name]}'s writing, projects, sources and topics connect." %>
+<% content_for :main_class, "wide-graph" %>
+<% data = @graph.as_json %>
+<section class="hero"><p class="eyebrow">graph</p><h1>How it all connects</h1></section>
+<p class="muted">Posts, projects, the papers they cite, and topics. Drag to move · scroll to zoom · click a dot for details.</p>
+<div class="kg-controls" role="group" aria-label="Show on graph">
+  <label><input type="checkbox" data-type="paper" checked> <span class="kg-key paper"></span> papers</label>
+  <label><input type="checkbox" data-type="tag" checked> <span class="kg-key tag"></span> topics</label>
+  <button type="button" class="link" id="kg-fit">fit to screen</button>
+  <span class="kg-legend"><span class="kg-key post"></span> posts <span class="kg-key project"></span> projects</span>
+</div>
+<div class="kg-wrap">
+  <svg id="kg" role="img" aria-label="Interactive graph of posts, projects, sources and topics. A text version follows below."></svg>
+  <aside id="kg-panel" class="kg-panel" hidden aria-live="polite"></aside>
+</div>
+<details class="kg-text">
+  <summary>Text version of the graph</summary>
+  <ul>
+    <% data[:nodes].select { %w[post project].include?(_1[:type]) }.each do |n| %>
+      <% out = data[:edges].select { _1[:s] == n[:id] } %>
+      <li><%= link_to n[:label], n[:url] %>
+        <% if out.any? %> — <%= out.map { |e| t = data[:nodes].find { _1[:id] == e[:t] }; "#{e[:kind] == "cites" ? "cites" : e[:kind] == "tag" ? "topic" : "links to"} #{t&.dig(:label)}" }.join("; ") %><% end %>
+      </li>
+    <% end %>
+  </ul>
+</details>
+<script type="application/json" id="kg-data"><%= raw data.to_json.gsub("</", "<\\/") %></script>
+<script>
+(() => {
+  const data = JSON.parse(document.getElementById("kg-data").textContent)
+  const svg = document.getElementById("kg"), panel = document.getElementById("kg-panel")
+  if (!data.nodes.length) { svg.outerHTML = '<p class="muted">Nothing to show yet — publish a post.</p>'; return }
+  const NS = "http://www.w3.org/2000/svg", W = () => svg.clientWidth, H = () => svg.clientHeight
+  const byId = new Map(data.nodes.map(n => [n.id, n]))
+  const edges = data.edges.filter(e => byId.has(e.s) && byId.has(e.t))
+  const deg = new Map(); edges.forEach(e => { deg.set(e.s, (deg.get(e.s) || 0) + 1); deg.set(e.t, (deg.get(e.t) || 0) + 1) })
+  const nbrs = new Map(data.nodes.map(n => [n.id, new Set()])); edges.forEach(e => { nbrs.get(e.s).add(e.t); nbrs.get(e.t).add(e.s) })
+  const R = n => (n.type === "post" || n.type === "project" ? 7 : 4.5) + Math.min(6, Math.sqrt(deg.get(n.id) || 0) * 1.6)
+  data.nodes.forEach((n, i) => { const a = i * 2.4; n.x = 400 + Math.cos(a) * (40 + i * 6); n.y = 300 + Math.sin(a) * (40 + i * 6); n.vx = n.vy = 0 })
+
+  const g = document.createElementNS(NS, "g"); svg.append(g)
+  const eg = document.createElementNS(NS, "g"), ng = document.createElementNS(NS, "g"); g.append(eg, ng)
+  const lines = edges.map(e => { const l = document.createElementNS(NS, "line"); l.setAttribute("class", "kg-edge " + e.kind); eg.append(l); return l })
+  const els = data.nodes.map(n => {
+    const grp = document.createElementNS(NS, "g"); grp.setAttribute("class", "kg-node " + n.type); grp.setAttribute("tabindex", "0")
+    grp.setAttribute("role", "button"); grp.setAttribute("aria-label", `${n.type}: ${n.label}`)
+    const c = document.createElementNS(NS, "circle"); c.setAttribute("r", R(n))
+    const t = document.createElementNS(NS, "text"); t.textContent = n.label.length > 26 ? n.label.slice(0, 25) + "…" : n.label
+    t.setAttribute("x", R(n) + 4); t.setAttribute("y", 4)
+    grp.append(c, t); ng.append(grp); n.el = grp; return grp
+  })
+
+  // force simulation
+  let alpha = 1
+  function tick() {
+    const nodes = data.nodes.filter(n => !n.hidden), cx = W() / 2, cy = H() / 2
+    for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+      const a = nodes[i], b = nodes[j]; let dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy || 1
+      const f = (a.type === "post" || a.type === "project" ? 3600 : 2600) / d2 * alpha, d = Math.sqrt(d2); dx /= d; dy /= d
+      a.vx -= dx * f; a.vy -= dy * f; b.vx += dx * f; b.vy += dy * f
+    }
+    edges.forEach(e => { const a = byId.get(e.s), b = byId.get(e.t); if (a.hidden || b.hidden) return
+      const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, k = (d - (e.kind === "link" ? 150 : 115)) * 0.02 * alpha
+      a.vx += dx / d * k; a.vy += dy / d * k; b.vx -= dx / d * k; b.vy -= dy / d * k })
+    nodes.forEach(n => { n.vx += (cx - n.x) * 0.004 * alpha; n.vy += (cy - n.y) * 0.004 * alpha
+      if (n !== drag) { n.x += n.vx; n.y += n.vy } n.vx *= 0.6; n.vy *= 0.6 })
+    draw(); alpha *= 0.985; if (alpha > 0.02) requestAnimationFrame(tick); else if (!fitted) { fitted = true; fit() }
+  }
+  function draw() {
+    edges.forEach((e, i) => { const a = byId.get(e.s), b = byId.get(e.t), l = lines[i]
+      l.style.display = a.hidden || b.hidden ? "none" : ""; l.setAttribute("x1", a.x); l.setAttribute("y1", a.y); l.setAttribute("x2", b.x); l.setAttribute("y2", b.y) })
+    data.nodes.forEach(n => { n.el.style.display = n.hidden ? "none" : ""; n.el.setAttribute("transform", `translate(${n.x},${n.y})`) })
+  }
+  const reheat = () => { const was = alpha <= 0.02; alpha = Math.max(alpha, 0.5); if (was) requestAnimationFrame(tick) }
+
+  // zoom / pan
+  let view = { k: 1, x: 0, y: 0 }, fitted = false
+  function fit() {   // zoom so every visible node fits, with room for labels
+    const ns = data.nodes.filter(n => !n.hidden); if (!ns.length) return
+    const xs = ns.map(n => n.x), ys = ns.map(n => n.y), pad = 40
+    const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + 180, y0 = Math.min(...ys) - pad, y1 = Math.max(...ys) + pad
+    view.k = Math.min(1.25, Math.max(0.3, Math.min(W() / (x1 - x0), H() / (y1 - y0))))
+    view.x = (W() - (x1 - x0) * view.k) / 2 - x0 * view.k; view.y = (H() - (y1 - y0) * view.k) / 2 - y0 * view.k
+    g.style.transition = "transform .4s"; applyView(); setTimeout(() => g.style.transition = "", 450)
+  }
+  const applyView = () => g.setAttribute("transform", `translate(${view.x},${view.y}) scale(${view.k})`)
+  svg.addEventListener("wheel", e => { e.preventDefault(); const r = svg.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top
+    const k2 = Math.min(3, Math.max(0.3, view.k * (e.deltaY < 0 ? 1.12 : 0.89))); view.x = mx - (mx - view.x) * k2 / view.k; view.y = my - (my - view.y) * k2 / view.k; view.k = k2; applyView() }, { passive: false })
+  const toGraph = (cx, cy) => { const r = svg.getBoundingClientRect(); return [(cx - r.left - view.x) / view.k, (cy - r.top - view.y) / view.k] }
+  let drag = null, pan = null, moved = false
+  svg.addEventListener("pointerdown", e => { const el = e.target.closest(".kg-node"); moved = false
+    if (el) { drag = data.nodes.find(n => n.el === el); svg.setPointerCapture(e.pointerId) } else pan = [e.clientX - view.x, e.clientY - view.y] })
+  svg.addEventListener("pointermove", e => { if (drag) { moved = true; [drag.x, drag.y] = toGraph(e.clientX, e.clientY); reheat(); draw() }
+    else if (pan) { view.x = e.clientX - pan[0]; view.y = e.clientY - pan[1]; applyView() } })
+  svg.addEventListener("pointerup", e => { if (drag && !moved) select(drag); drag = null; pan = null })
+
+  // highlight + details
+  function highlight(n) {
+    const keep = n ? new Set([n.id, ...nbrs.get(n.id)]) : null
+    data.nodes.forEach(m => m.el.classList.toggle("dim", !!keep && !keep.has(m.id)))
+    edges.forEach((e, i) => lines[i].classList.toggle("dim", !!n && e.s !== n.id && e.t !== n.id))
+  }
+  function select(n) {
+    highlight(n); location.replace("#" + n.id)
+    const list = [...nbrs.get(n.id)].map(id => byId.get(id)).sort((a, b) => a.type.localeCompare(b.type))
+    const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]))
+    panel.innerHTML = `<p class="kg-ptype">${n.type}</p><h2>${n.url ? `<a href="${esc(n.url)}"${n.type === "paper" ? ' target="_blank" rel="noopener"' : ""}>${esc(n.label)}</a>` : esc(n.label)}</h2>
+      ${n.title ? `<p class="muted">${esc(n.title)}</p>` : ""}<p class="muted">${list.length} connection${list.length === 1 ? "" : "s"}</p>
+      <ul>${list.map(m => `<li><span class="kg-key ${m.type}"></span> <a href="#${esc(m.id)}" data-go="${esc(m.id)}">${esc(m.label)}</a></li>`).join("")}</ul>
+      <button type="button" class="link" data-close>close</button>`
+    panel.hidden = false
+  }
+  panel.addEventListener("click", e => { const go = e.target.dataset.go; if (go) { e.preventDefault(); select(byId.get(go)) }
+    if (e.target.dataset.close !== undefined) { panel.hidden = true; highlight(null); history.replaceState(null, "", location.pathname) } })
+  els.forEach((el, i) => { const n = data.nodes[i]
+    el.addEventListener("mouseenter", () => panel.hidden && highlight(n)); el.addEventListener("mouseleave", () => panel.hidden && highlight(null))
+    el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(n) } }) })
+
+  // filters
+  document.querySelectorAll(".kg-controls input").forEach(cb => cb.addEventListener("change", () => {
+    data.nodes.forEach(n => { if (n.type === cb.dataset.type) n.hidden = !cb.checked }); reheat(); draw() }))
+
+  document.getElementById("kg-fit").addEventListener("click", fit)
+  tick()
+  const start = decodeURIComponent(location.hash.slice(1)); if (byId.has(start)) setTimeout(() => select(byId.get(start)), 900)
+})()
+</script>

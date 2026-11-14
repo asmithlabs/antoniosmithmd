@@ -51,9 +51,13 @@
     <p class="tags">tags: <% @post.tag_list.each do |t| %><%= link_to t, tag_path(t) %> <% end %></p>
   <% end %>
 
-  <% if @related.any? %>
-    <h2 class="section">Related <span class="tag-r">*related*</span></h2>
-    <ul class="linklist"><% @related.each do |r| %><li><%= link_to r.display_title, post_path(r) %> <span class="muted"><%= r.published_at.to_date %></span></li><% end %></ul>
+  <% if @related.any? || @backlinks.any? %>
+    <h2 class="section">Connections <span class="tag-r">*connections*</span></h2>
+    <ul class="linklist connections">
+      <% @related.each do |r, _score, why| %><li><%= link_to r.display_title, post_path(r) %> <span class="muted"><%= why %></span></li><% end %>
+      <% (@backlinks - @related.map(&:first)).each do |b| %><li><%= link_to b.display_title, post_path(b) %> <span class="muted">links here</span></li><% end %>
+    </ul>
+    <p class="muted"><%= link_to "see it on the graph →", graph_path(anchor: "p:#{@post.slug}") %></p>
   <% end %>
 
   <%= render "comments/section", post: @post, tree: @tree %>
