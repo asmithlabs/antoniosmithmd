@@ -8,7 +8,7 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
         with: { ruby-version: '3.3', bundler-cache: true }
       - name: Brakeman (fails on medium/high)
@@ -26,7 +26,7 @@ jobs:
       RAILS_FORCE_SSL: "false"
       RAILS_ASSUME_SSL: "false"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: ruby/setup-ruby@v1
         with: { ruby-version: '3.3', bundler-cache: true }
       - name: Prepare database and seed drafts
@@ -46,6 +46,6 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Docker image builds
         run: docker build -t antoniosmithmd:ci .
