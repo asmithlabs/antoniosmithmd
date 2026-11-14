@@ -12,6 +12,10 @@ module Api
 
       def show = render(json: post_json(Post.find_by!(slug: params[:id]), full: true))
 
+      # GET /api/v1/posts/:slug/review — read-only editorial check. Never edits the post;
+      # draft-only tokens can call this on anything they can already read.
+      def review = render(json: PostReview.new(Post.find_by!(slug: params[:id])))
+
       # PUT /api/v1/posts/:slug  — upsert.
       #   { "obsidian": "<raw note with frontmatter>", "source_path": "Blog/My note.md" }
       #   or { "title":, "markdown"|"html":, "excerpt":, "category":, "tags": [..], "published_at":, "publish": true }

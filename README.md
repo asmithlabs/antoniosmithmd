@@ -62,12 +62,20 @@ They can't publish, edit live posts, or moderate. Posts show their source in adm
 
     GET    /api/v1/posts[?status=draft|published]
     GET    /api/v1/posts/:slug                  # includes body_html
+    GET    /api/v1/posts/:slug/review            # read-only editorial check (see below)
     PUT    /api/v1/posts/:slug                  # upsert: {title, markdown|html, excerpt, category, tags[], publish, published_at}
                                                 #     or {obsidian: "<raw note>", source_path}
     DELETE /api/v1/posts/:slug                  # full tokens only
     GET    /api/v1/comments[?since=ISO8601&pending=1]
     PATCH  /api/v1/comments/:id {approved}      # full tokens only
     Header: Authorization: Bearer asm_...
+
+## Editorial review
+`GET /api/v1/posts/:slug/review` flags things worth a second look before publishing — unresolved `[@key]`
+citations, a link to a post that doesn't exist, images missing alt text, a short/thin post, no excerpt, no
+category, or a long title — plus a `suggested_excerpt` when none is set. It's read-only: nothing is written
+to the post. Agents (Hermes's `blog.py review "<note>"`) report these as suggestions; only Antonio edits the
+post to act on them.
 
 ## Projects from GitHub
 Public repos with the **`portfolio`** topic (from the accounts in `config/site.yml` → `github.owners`) appear on
