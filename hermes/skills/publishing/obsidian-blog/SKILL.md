@@ -20,6 +20,7 @@ All work goes through `${HERMES_SKILL_DIR}/scripts/blog.py`. Never read or send 
 - "Is <note> live?"
 - "Find the paper on alert fatigue for me", "what's the cite key for Smith 2021?"
 - "Check the citations in <note>"
+- "Review <note>", "anything wrong with my post before I publish?"
 
 ## Procedure
 1. **Find notes:** `python3 ${HERMES_SKILL_DIR}/scripts/blog.py list`
@@ -32,6 +33,15 @@ All work goes through `${HERMES_SKILL_DIR}/scripts/blog.py`. Never read or send 
    Run `blog.py send "<note>" --publish`. If the API answers `this token is draft-only` / 403, say that the
    Hermes token can only make drafts and he can publish from the admin page (give the `edit_url`). Don't retry.
 5. **Check:** `blog.py status "<note>"` to confirm state and give the link.
+
+## Editorial review (read-only)
+Before Antonio publishes — or any time he asks — run `blog.py review "<note>"` (the note must already be on
+the blog as a draft or published). It returns issues like unresolved citations, a broken internal link, images
+missing alt text, a short/thin post, no excerpt, no category, or an overlong title, plus a `suggested_excerpt`
+when none is set. Report issues plainly, grouped by severity (`warning` first, then `info`); if `clean: true`,
+say so. **Never act on these yourself** — don't edit the note, don't set the excerpt, don't resend. Antonio
+decides what to change and does it himself in the note or the editor. If he asks you to apply a suggested
+excerpt, that's a `send` with the excerpt added to frontmatter — same draft/publish rules as any other edit.
 
 ## Citing papers (Zotero)
 - **Find a paper:** `blog.py cite "<words from title, author, year or DOI>"`. Reply with the best 1–5 matches as

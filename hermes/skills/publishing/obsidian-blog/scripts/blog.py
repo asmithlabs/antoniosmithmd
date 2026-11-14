@@ -13,6 +13,7 @@ Commands:
   blog.py status "<note>"           current state of that post on the blog
   blog.py cite "<query>"            search Antonio's Zotero library (via the blog) -> [@key] citations
   blog.py check "<note>"            list the note's [@key] citations and flag any not found in Zotero
+  blog.py review "<note>"           editorial check of the note's current state on the blog (read-only)
 """
 import json, os, re, sys, urllib.request, urllib.error
 from pathlib import Path
@@ -141,8 +142,16 @@ def main(argv):
             (found if c == 200 and any(x["key"] == k for x in r) else missing).append(k)
         print(json.dumps({"note": i["path"], "citations": len(keys), "found": found, "missing": missing,
                           "hint": "Missing keys: check spelling with `cite`, or sync Zotero in blog admin -> references." if missing else "All citations resolve."}, indent=2))
+    elif cmd == "review":
+        if not args: sys.exit('usage: blog.py review "<note>"')
+        i = info(find(args[0]))
+        r = remote(i["slug"])
+        if not r: sys.exit(f"error: '{i['title']}' isn't on the blog yet — send it first.")
+        code, j = api("GET", f"/api/v1/posts/{i['slug']}/review")
+        if code != 200: print(json.dumps({"ok": False, "http": code, **(j if isinstance(j, dict) else {})})); sys.exit(1)
+        print(json.dumps({"note": i["path"], "slug": i["slug"], "status": r["status"], **j}, indent=2))
     else:
-        sys.exit(f"unknown command '{cmd}'. Try: list | preview | send | status | cite | check")
+        sys.exit(f"unknown command '{cmd}'. Try: list | preview | send | status | cite | check | review")
 
 if __name__ == "__main__":
     main(sys.argv[1:])

@@ -16,7 +16,9 @@ Rails.application.routes.draw do
   get "robots.txt" => "seo#robots", defaults: { format: :text }
   namespace :api do
     namespace :v1 do
-      resources :posts, only: %i[index show update destroy]
+      resources :posts, only: %i[index show update destroy] do
+        get :review, on: :member
+      end
       resources :comments, only: %i[index update]
       resources :references, only: :index
     end
