@@ -27,9 +27,11 @@ github:
 links:
   wiki: "https://wiki.asmithlabs.com"
   github: "https://github.com/asmithlabs"
+  mastodon: "https://mastodon.social/@thebeardeddoctor"
   linkedin: "https://www.linkedin.com/in/antonioesmith"
   cv: "/cv.pdf"
 url: "https://antoniosmithmd.com"
+fediverse_handle: "@thebeardeddoctor@mastodon.social"
 projects:
   - name: "asmithlabs homelab wiki"
     url: "https://wiki.asmithlabs.com"

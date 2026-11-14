@@ -22,6 +22,8 @@ services:
       ZOTERO_LIBRARY_ID: ${ZOTERO_LIBRARY_ID:-}
       ZOTERO_API_KEY: ${ZOTERO_API_KEY:-}
       ZOTERO_STYLE: american-medical-association
+      MASTODON_URL: ${MASTODON_URL:-}       # e.g. https://mastodon.social
+      MASTODON_TOKEN: ${MASTODON_TOKEN:-}   # app token, scope write:statuses only
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}   # optional, only raises GitHub's rate limit for the Projects list
       # Duo (optional second factor alongside security keys)
       DUO_CLIENT_ID: ${DUO_CLIENT_ID:-}

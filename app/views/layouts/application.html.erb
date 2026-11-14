@@ -17,6 +17,8 @@
   <meta property="og:url" content="<%= canonical %>">
   <meta property="og:type" content="<%= content_for?(:og_type) ? yield(:og_type) : "website" %>">
   <meta name="twitter:card" content="summary">
+  <% if SITE[:fediverse_handle] %><meta name="fediverse:creator" content="<%= SITE[:fediverse_handle] %>"><% end %>
+  <% if SITE.dig(:links, :mastodon) %><link rel="me" href="<%= SITE.dig(:links, :mastodon) %>"><% end %>
   <%= yield :head %>
   <%= csrf_meta_tags %>
   <link rel="alternate" type="application/rss+xml" title="<%= SITE[:name] %>" href="<%= feed_url %>">
@@ -40,7 +42,7 @@
   <% if flash.any? %><div class="wrap"><% flash.each do |k, m| %><p class="flash <%= k %>"><%= m %></p><% end %></div><% end %>
   <main class="wrap <%= yield(:main_class) %>"><%= yield %></main>
   <footer class="site-footer"><div class="wrap">
-    <p>&copy; <%= Date.current.year %> <%= SITE[:name] %> · <%= link_to "rss", feed_path %> · <%= link_to "linkedin", SITE.dig(:links,:linkedin), rel: "me" %> · <%= link_to "github", SITE.dig(:links,:github), rel: "me" %></p>
+    <p>&copy; <%= Date.current.year %> <%= SITE[:name] %> · <%= link_to "rss", feed_path %> · <%= link_to "linkedin", SITE.dig(:links,:linkedin), rel: "me" %> · <%= link_to "github", SITE.dig(:links,:github), rel: "me" %><% if SITE.dig(:links, :mastodon) %> · <%= link_to "mastodon", SITE.dig(:links, :mastodon), rel: "me" %><% end %></p>
   </div></footer>
 </body>
 </html>

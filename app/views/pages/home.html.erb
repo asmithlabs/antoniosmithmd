@@ -1,6 +1,6 @@
 <% content_for :head do %>
   <script type="application/ld+json"><%= raw({ "@context" => "https://schema.org", "@type" => "Person", name: "Antonio Smith", honorificSuffix: "MD, MBA",
-    jobTitle: "Hospitalist Physician & Clinical Informatics Fellow", url: root_url, sameAs: [SITE.dig(:links, :linkedin), SITE.dig(:links, :github), SITE.dig(:links, :wiki)].compact,
+    jobTitle: "Hospitalist Physician & Clinical Informatics Fellow", url: root_url, sameAs: [SITE.dig(:links, :linkedin), SITE.dig(:links, :github), SITE.dig(:links, :mastodon), SITE.dig(:links, :wiki)].compact,
     homeLocation: "Indianapolis, IN", affiliation: "Regenstrief Institute",
     knowsAbout: ["Clinical informatics", "Hospital medicine", "Healthcare AI", "Programming"] }.to_json) %></script>
 <% end %>
@@ -10,7 +10,7 @@
   <p class="meta"><%= SITE[:tagline] %></p>
 </section>
 <% SITE[:intro].strip.split(/\n{2,}/).each do |para| %><p><%= para.squish %></p><% end %>
-<p class="quiet-inline"><%= link_to "cv", SITE.dig(:links, :cv) %> · <%= link_to "linkedin", SITE.dig(:links, :linkedin), rel: "me" %> · <%= link_to "github", SITE.dig(:links, :github), rel: "me" %> · <%= link_to "homelab wiki", SITE.dig(:links, :wiki) %></p>
+<p class="quiet-inline"><%= link_to "cv", SITE.dig(:links, :cv) %> · <%= link_to "linkedin", SITE.dig(:links, :linkedin), rel: "me" %> · <%= link_to "github", SITE.dig(:links, :github), rel: "me" %> · <%= link_to "mastodon", SITE.dig(:links, :mastodon), rel: "me" %> · <%= link_to "homelab wiki", SITE.dig(:links, :wiki) %></p>
 
 <h2 class="section">Projects <span class="tag-r">*projects*</span></h2>
 <% if @projects.any? || @repos.any? || SITE[:projects].present? %>
