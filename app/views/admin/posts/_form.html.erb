@@ -18,6 +18,14 @@
         <label>Tags <small>(comma-separated)</small> <%= f.text_field :tags, placeholder: "epic, cds, governance" %></label>
         <label class="check"><%= f.check_box :featured %> Featured on home page</label>
       </fieldset>
+      <fieldset><legend>Mastodon</legend>
+        <% if post.mastodon_url.present? %>
+          <p>Shared <%= time_ago_in_words(post.mastodon_posted_at) %> ago → <%= link_to "view toot ↗", post.mastodon_url, target: "_blank", rel: "noopener" %></p>
+        <% else %>
+          <label class="check"><%= f.check_box :share_mastodon %> Share on Mastodon when published</label>
+          <small class="muted"><%= MastodonSyndication.configured? ? "Posted within ~5 min of going live, once." : "Not connected (set MASTODON_URL and MASTODON_TOKEN)." %></small>
+        <% end %>
+      </fieldset>
       <fieldset><legend>Comments</legend>
         <label class="check"><%= f.check_box :comments_enabled %> Allow comments</label>
         <label>Open comments at <small>(delay — blank = immediately)</small> <%= f.datetime_local_field :comments_open_at %></label>

@@ -75,6 +75,14 @@ Public repos with the **`portfolio`** topic (from the accounts in `config/site.y
 To add one: GitHub repo → ⚙ next to *About* → Topics → `portfolio`. Private repos never appear, even if tagged.
 Optional `GITHUB_TOKEN` (no scopes needed) only raises the rate limit.
 
+## Mastodon
+Published posts are shared once to Mastodon within ~5 minutes of going live (scheduled posts too): title, summary,
+link and tags as hashtags, under 500 characters. Per-post switch in the editor ("Share on Mastodon when published").
+Setup: mastodon.social → Preferences → Development → New application → scope **write:statuses** only →
+copy *Your access token* into `MASTODON_TOKEN`, and set `MASTODON_URL=https://mastodon.social`.
+Only posts published in the last 2 days are shared, so turning it on doesn't flood your timeline with old posts.
+The site links your profile with `rel="me"` → add https://antoniosmithmd.com to a profile field on Mastodon for a ✓.
+
 ## Zotero citations
 1. zotero.org → Settings → Security → **Create new private key**: read-only access to your library.
    Your **userID** is shown on that page.
