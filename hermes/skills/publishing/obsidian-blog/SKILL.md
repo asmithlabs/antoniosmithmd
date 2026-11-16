@@ -61,6 +61,8 @@ excerpt, that's a `send` with the excerpt added to frontmatter — same draft/pu
 ## Note conventions (frontmatter)
 `title`, `publish: true`, `date`, `category` (informatics | ai | medicine | notes | homelab | leadership | projects — projects also appear on the home page),
 `tags: [a, b]`, `description` (meta description), `slug`, `comments: false`, `blog: false` (never send).
+`> [!reasoning] Title` becomes a collapsed "Follow the reasoning" block; use `#### Evidence`, `#### Assumptions`,
+`#### Other explanations I considered`, `#### What would change my mind`, `#### Confidence` inside it.
 Obsidian callouts (`> [!tip]`, `> [!pearl]`, `> [!tldr]`, `> [!warning]`, `> [!definition]`, foldable `> [!faq]-`),
 `==highlights==`, `[[links]]` and `%%private comments%%` (stripped) are converted by the blog. Image embeds are not uploaded.
 

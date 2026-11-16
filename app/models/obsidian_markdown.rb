@@ -57,10 +57,12 @@ class ObsidianMarkdown
       fold, title = m[2], m[3].strip
       first.inner_html = m.post_match
       first.remove if first.inner_html.strip.empty?
-      if fold.present?
+      reasoning = m[1].casecmp?("reasoning")   # > [!reasoning] → "Follow the reasoning" block (always collapsible)
+      if fold.present? || reasoning
         node = Nokogiri::XML::Node.new("details", doc)
         node["open"] = "open" if fold == "+"
-        node.add_child("<summary>#{ERB::Util.h(title.presence || m[1].capitalize)}</summary><div class=\"details-body\">#{bq.inner_html}</div>")
+        (node["class"] = "reasoning"; node["data-type"] = "reasoning") if reasoning
+        node.add_child("<summary>#{ERB::Util.h(title.presence || (reasoning ? "Follow the reasoning" : m[1].capitalize))}</summary><div class=\"details-body\">#{bq.inner_html}</div>")
       else
         node = Nokogiri::XML::Node.new("aside", doc)
         node["class"] = "callout"; node["data-kind"] = kind
