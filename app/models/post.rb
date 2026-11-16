@@ -17,7 +17,8 @@ class Post < ApplicationRecord
   has_many :revisions, -> { order(created_at: :desc) }, class_name: "PostRevision", dependent: :delete_all
 
   attr_accessor :revision_editor   # who made this change ("admin", "api:Hermes", "obsidian")
-  before_update :snapshot_revision, if: -> { will_save_change_to_body? || will_save_change_to_title_html? || will_save_change_to_title? || will_save_change_to_excerpt? }
+  attr_accessor :change_kind, :change_note   # optional public note about this edit (admin form)
+  before_update :snapshot_revision, if: -> { will_save_change_to_body? || will_save_change_to_title_html? || will_save_change_to_title? || will_save_change_to_excerpt? || change_note.present? }
   after_save :reindex_search!
   after_destroy { self.class.connection.exec_delete("DELETE FROM post_search WHERE rowid = ?", "fts", [id]) }
 
@@ -94,8 +95,12 @@ class Post < ApplicationRecord
   private
 
   def snapshot_revision
+    was_live = published_at_was.present? && published_at_was <= Time.current
+    note = change_note.to_s.squish.first(500).presence
     revisions.create!(title: title_was, title_html: title_html_was, body: body_was, excerpt: excerpt_was,
-                      editor: revision_editor.presence || "admin")
+                      editor: revision_editor.presence || "admin", public: was_live,
+                      change_kind: (note && PostRevision::KINDS.key?(change_kind) ? change_kind : (note ? "update" : nil)),
+                      change_note: (was_live ? note : nil))
     revisions.offset(100).delete_all if revisions.count > 100   # keep the last 100 versions
   end
 

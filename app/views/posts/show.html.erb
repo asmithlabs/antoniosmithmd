@@ -26,9 +26,14 @@
       <time datetime="<%= @post.published_at.iso8601 %>"><%= @post.published_at.strftime("%B %-d, %Y") %></time>
       · <%= @post.reading_minutes %> min read
       <% if @post.category %> · <%= link_to @post.category_name, category_path(@post.category) %><% end %>
+      <% if @last_public_edit %> · <%= link_to "updated #{@last_public_edit.strftime("%B %-d, %Y")}", history_post_path(@post), title: "See how this post changed" %><% end %>
     </p>
     <h1><%= @post.display_title %></h1>
     <% if @post.excerpt.present? %><p class="lede"><%= @post.excerpt %></p><% end %>
+    <% if (fix = @changes.find { _1.change_kind == "correction" }) %>
+      <p class="change-notice correction"><strong>Correction, <%= fix.created_at.strftime("%B %-d, %Y") %>:</strong> <%= fix.change_note %>
+        <%= link_to "history", history_post_path(@post, anchor: "v#{fix.id}") %></p>
+    <% end %>
   </header>
 
   <div class="post-grid">
@@ -46,6 +51,17 @@
   <% end %>
   <div class="prose"><%= @post.rendered_html %></div>
   </div>
+
+  <% if @changes.any? %>
+    <h2 class="section" id="changes">Changes <span class="tag-r">*changes*</span></h2>
+    <ul class="linklist changes">
+      <% @changes.each do |c| %>
+        <li><time datetime="<%= c.created_at.iso8601 %>"><%= c.created_at.strftime("%b %-d, %Y") %></time>
+          <span class="change-kind <%= c.change_kind %>"><%= c.kind_label %></span> — <%= c.change_note %>
+          <%= link_to "diff", history_post_path(@post, anchor: "v#{c.id}"), class: "muted" %></li>
+      <% end %>
+    </ul>
+  <% end %>
 
   <% if @post.tag_list.any? %>
     <p class="tags">tags: <% @post.tag_list.each do |t| %><%= link_to t, tag_path(t) %> <% end %></p>

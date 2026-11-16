@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_14_040110) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_17_000000) do
   create_table "api_tokens", force: :cascade do |t|
     t.string "name"
     t.string "token_digest"
@@ -54,6 +54,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_14_040110) do
     t.text "excerpt"
     t.string "editor"
     t.datetime "created_at", null: false
+    t.boolean "public", default: false, null: false
+    t.string "change_kind"
+    t.text "change_note"
+    t.index ["post_id", "public", "created_at"], name: "index_post_revisions_on_post_id_and_public_and_created_at"
     t.index ["post_id"], name: "index_post_revisions_on_post_id"
   end
 

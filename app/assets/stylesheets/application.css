@@ -253,6 +253,12 @@ h1 code,h2 code{color:var(--gold);font:inherit}
 .searchform .btn{color:var(--bg)}
 .snippet mark{background:color-mix(in srgb,var(--gold-l) 45%,transparent);color:inherit}
 /* history diff */
+.change-notice{border-left:3px solid var(--gold);padding:.3em 0 .3em 1.5ch;margin:1em 0;font-size:.95rem}
+.change-notice.correction{border-left-color:var(--red)}
+.change-kind{font-size:.8rem;color:var(--slate);border:1px solid var(--rule);padding:0 .6ch}
+.change-kind.correction{color:var(--red);border-color:var(--red)}.change-kind.rethink{color:var(--gold);border-color:var(--gold)}
+.linklist.changes time{color:var(--slate);margin-right:1ch}
+ol.history{padding-left:3ch}ol.history>li{margin:0 0 1.6em}ol.history .change-note{margin:.2em 0 .4em}
 .diff{border:1px solid var(--rule);padding:.8em 2ch;margin:1em 0;line-height:1.7;white-space:pre-wrap}
 .diff del,p del{background:color-mix(in srgb,var(--red) 18%,transparent);color:inherit;text-decoration:line-through}
 .diff ins,p ins{background:color-mix(in srgb,var(--teal) 18%,transparent);color:inherit;text-decoration:none}

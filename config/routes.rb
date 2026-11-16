@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   get "search" => "search#index"
   get "graph" => "graph#show"
   resources :posts, only: %i[index show], path: "blog" do
+    get :history, on: :member
     resources :comments, only: :create do
       post :vote, on: :member
     end
