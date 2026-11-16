@@ -60,6 +60,20 @@
     <p class="muted"><%= link_to "see it on the graph →", graph_path(anchor: "p:#{@post.slug}") %></p>
   <% end %>
 
+  <% if @post.mastodon_url.present? && @post.mastodon_replies? %>
+    <section class="fediverse" aria-labelledby="fedi-h">
+      <h2 class="section" id="fedi-h">Replies on Mastodon <span class="tag-r">*fediverse*</span></h2>
+      <p class="muted">This post was shared on Mastodon. Public replies there show up here;
+        <%= link_to "reply on Mastodon ↗", @post.mastodon_url, rel: "noopener", target: "_blank" %> to join in.</p>
+      <div id="fedi-replies" data-src="<%= fediverse_post_path(@post) %>"><p class="muted">Loading replies…</p></div>
+      <script>
+        (() => { const box = document.getElementById("fedi-replies")
+          fetch(box.dataset.src, { headers: { Accept: "text/html" } }).then(r => r.ok ? r.text() : Promise.reject())
+            .then(html => { box.innerHTML = html }).catch(() => { box.innerHTML = '<p class="muted">Couldn\'t load replies right now.</p>' }) })()
+      </script>
+    </section>
+  <% end %>
+
   <%= render "comments/section", post: @post, tree: @tree %>
   <p class="back"><%= link_to "← all posts", posts_path %></p>
 </article>

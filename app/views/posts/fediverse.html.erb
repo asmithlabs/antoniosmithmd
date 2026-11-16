@@ -1,0 +1,6 @@
+<%# HTML fragment inserted into the post page. Remote content is already sanitized by MastodonReplies. %>
+<% if @replies.any? %>
+  <ul class="fedi-replies"><% @replies.each do |r| %><%= render "posts/toot", r:, depth: 1 %><% end %></ul>
+<% else %>
+  <p class="muted">No replies on Mastodon yet.</p>
+<% end %>

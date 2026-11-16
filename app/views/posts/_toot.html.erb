@@ -1,0 +1,15 @@
+<li id="toot-<%= r.id %>">
+  <p class="meta"><%= r.account_url ? link_to(r.name, r.account_url, rel: "nofollow ugc noopener", target: "_blank") : r.name %>
+    <span class="muted">@<%= r.acct %></span>
+    <% if r.created_at %>· <%= link_to "#{time_ago_in_words(r.created_at)} ago", r.url, rel: "nofollow ugc noopener", target: "_blank" %><% end %></p>
+  <% if r.warning %>
+    <details class="fedi-cw"><summary>Content warning: <%= r.warning %></summary><div class="fedi-body"><%= r.html %></div></details>
+  <% else %>
+    <div class="fedi-body"><%= r.html %></div>
+  <% end %>
+  <% if r.children.any? %>
+    <ul class="fedi-replies<%= " flat" if depth >= 3 %>">
+      <% r.children.each do |c| %><%= render "posts/toot", r: c, depth: depth + 1 %><% end %>
+    </ul>
+  <% end %>
+</li>

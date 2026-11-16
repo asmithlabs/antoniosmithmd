@@ -281,3 +281,9 @@ main.wide-graph{max-width:140ch}
 .connections .muted{font-size:.85rem}
 @media (max-width:600px){.kg-panel{position:static;width:auto;max-height:none;box-shadow:none;border-width:1px 0 0}}
 .repos .lang{color:var(--teal)}.repo-links{font-size:.88rem;margin:.2em 0 0}.repo-links a{color:var(--gold)}.repo-topic{color:var(--slate)}
+
+.fediverse .fedi-replies{list-style:none;padding-left:0;margin:.6em 0}
+.fediverse .fedi-replies .fedi-replies{padding-left:2.5ch;border-left:1px solid var(--rule)}
+.fediverse .fedi-replies.flat{padding-left:0;border-left:0}
+.fediverse .fedi-replies>li{margin:0 0 1em}.fediverse .meta{margin:0 0 .2em;font-size:.88rem}
+.fediverse .fedi-body p{margin:.2em 0}.fediverse .fedi-cw summary{cursor:pointer;color:var(--gold)}
