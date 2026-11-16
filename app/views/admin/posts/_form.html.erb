@@ -18,6 +18,11 @@
         <label>Tags <small>(comma-separated)</small> <%= f.text_field :tags, placeholder: "epic, cds, governance" %></label>
         <label class="check"><%= f.check_box :featured %> Featured on home page</label>
       </fieldset>
+      <fieldset><legend>Code &amp; project</legend>
+        <label>Links <small>(one per line, https only; optional "Label | URL")</small>
+          <%= f.text_area :code_links, rows: 3, placeholder: "https://github.com/asmithlabs/home_lab\nLive app | https://example.org\nhttps://github.com/asmithlabs/home_lab/commit/abc1234" %></label>
+        <p class="muted small">Repos, commits, pull requests, docs or a running app. Shown in a box at the end of the post.</p>
+      </fieldset>
       <fieldset><legend>Mastodon</legend>
         <% if post.mastodon_url.present? %>
           <p>Shared <%= time_ago_in_words(post.mastodon_posted_at) %> ago → <%= link_to "view toot ↗", post.mastodon_url, target: "_blank", rel: "noopener" %></p>

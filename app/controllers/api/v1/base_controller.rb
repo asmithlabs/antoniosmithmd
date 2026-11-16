@@ -24,6 +24,7 @@ module Api
               published_at: p.published_at, category: p.category, tags: p.tag_list, excerpt: p.excerpt,
               source: p.source, url: (p.published? ? post_url(p) : nil), edit_url: edit_admin_post_url(p), updated_at: p.updated_at }
         h[:body_html] = p.body if full
+        h[:code_links] = p.code_link_list.map { { url: _1.url, label: _1.label, kind: _1.kind } } if full
         h
       end
     end

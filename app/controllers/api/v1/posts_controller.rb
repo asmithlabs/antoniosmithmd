@@ -48,10 +48,11 @@ module Api
       private
 
       def from_fields
-        p = params.permit(:title, :markdown, :html, :excerpt, :category, :published_at, :publish, tags: [])
+        p = params.permit(:title, :markdown, :html, :excerpt, :category, :published_at, :publish, :code_links, tags: [], code_links: [])
         body = p[:html].presence || (p[:markdown] && ObsidianMarkdown.new(p[:markdown]).to_html)
         { title: p[:title], body:, excerpt: p[:excerpt], category: p[:category], tags: p[:tags]&.join(", "),
-          published_at: p[:publish].to_s == "true" ? (p[:published_at].presence || Time.current) : p[:published_at] }
+          published_at: p[:publish].to_s == "true" ? (p[:published_at].presence || Time.current) : p[:published_at],
+          code_links: (Array(p[:code_links]).join("\n") if p.key?(:code_links)) }
       end
 
       def from_obsidian(raw)
@@ -67,6 +68,7 @@ module Api
           category: (fm["category"].to_s.downcase.presence if Post::CATEGORIES.key?(fm["category"].to_s.downcase)),
           tags: tags.uniq.reject { %w[blog publish].include?(_1) }.join(", ").presence,
           comments_enabled: fm.key?("comments") ? fm["comments"] != false : nil,
+          code_links: (Array(fm["code"]) + Array(fm["repo"])).map(&:to_s).compact_blank.join("\n").presence,
           published_at: publish ? (date.present? ? Time.zone.parse(date.to_s) : Time.current) : nil
         }
       end

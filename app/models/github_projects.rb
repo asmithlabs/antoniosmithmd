@@ -16,6 +16,11 @@ class GithubProjects
     Rails.cache.read(["github-projects/last-good", owners, topic]) || []
   end
 
+  # Whatever is already cached — never calls GitHub (safe to use while rendering a page).
+  def self.cached
+    Rails.cache.read(["github-projects/v1", owners, topic]) || Rails.cache.read(["github-projects/last-good", owners, topic]) || []
+  end
+
   def self.fetch!
     q = (["topic:#{topic}", "archived:false", "is:public"] + owners.map { "user:#{_1}" }).join(" ")
     uri = URI("https://api.github.com/search/repositories")

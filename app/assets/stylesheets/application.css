@@ -281,3 +281,8 @@ main.wide-graph{max-width:140ch}
 .connections .muted{font-size:.85rem}
 @media (max-width:600px){.kg-panel{position:static;width:auto;max-height:none;box-shadow:none;border-width:1px 0 0}}
 .repos .lang{color:var(--teal)}.repo-links{font-size:.88rem;margin:.2em 0 0}.repo-links a{color:var(--gold)}.repo-topic{color:var(--slate)}
+
+.code-links{border:1px solid var(--rule);padding:.6em 2ch;margin:2em 0}
+.code-links ul{list-style:none;margin:.4em 0 0;padding:0}.code-links li{margin:.25em 0}
+.code-links .cl-kind{display:inline-block;min-width:11ch;font-size:.8rem;color:var(--slate)}
+.code-links .cl-kind.commit,.code-links .cl-kind.pr{color:var(--gold)}
