@@ -18,6 +18,11 @@
         <label>Tags <small>(comma-separated)</small> <%= f.text_field :tags, placeholder: "epic, cds, governance" %></label>
         <label class="check"><%= f.check_box :featured %> Featured on home page</label>
       </fieldset>
+      <fieldset><legend>Notebook</legend>
+        <label>Stage <%= f.select :notebook_stage, Post::NOTEBOOK_STAGES.to_h { |k, v| ["#{v[:icon]} #{v[:label]}", k] }, include_blank: "— finished essay —" %></label>
+        <p class="muted small">A stage puts this in the research notebook and tells readers it's a working note.</p>
+        <label>Open questions <small>(one per line)</small> <%= f.text_area :questions, rows: 3, placeholder: "Does X hold outside academic centers?" %></label>
+      </fieldset>
       <fieldset><legend>Mastodon</legend>
         <% if post.mastodon_url.present? %>
           <p>Shared <%= time_ago_in_words(post.mastodon_posted_at) %> ago → <%= link_to "view toot ↗", post.mastodon_url, target: "_blank", rel: "noopener" %></p>

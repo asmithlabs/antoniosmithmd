@@ -47,6 +47,7 @@ class Post < ApplicationRecord
   TITLE_TAGS = %w[strong em u s code a mark sup sub].freeze
   before_validation :normalize_title
   before_validation { self.category = category.presence; self.tags = tags.presence; self.excerpt = excerpt.presence }
+  before_validation { self.notebook_stage = notebook_stage.presence; self.questions = question_list.map { _1.first(300) }.join("\n").presence }
   before_validation { self.slug = (slug.presence || title).to_s.parameterize }
 
   # Rich title (bold/italic/code/links). `title` stays plain text for <title>, SEO, RSS, URLs.
@@ -77,6 +78,18 @@ class Post < ApplicationRecord
   def rendered_html = processed.first
   def toc = processed.last
   def cited_references = (processed; @cited || [])
+
+  # Research notebook. A stage marks the post as a working note: ideas are preliminary and expected to change.
+  NOTEBOOK_STAGES = {
+    "seedling" => { label: "Seedling", icon: "🌱", blurb: "an early idea — rough, incomplete, possibly wrong" },
+    "growing"  => { label: "Growing",  icon: "🌿", blurb: "taking shape — the argument is there, the evidence is still coming in" },
+    "mature"   => { label: "Mature",   icon: "🌳", blurb: "fairly settled — I still revise it when I learn more" },
+  }.freeze
+  validates :notebook_stage, inclusion: { in: NOTEBOOK_STAGES.keys }, allow_nil: true
+  scope :notebook, -> { published.where.not(notebook_stage: nil).reorder(updated_at: :desc) }
+  def notebook? = notebook_stage.present?
+  def stage_info = NOTEBOOK_STAGES[notebook_stage]
+  def question_list = questions.to_s.lines.map(&:strip).reject(&:blank?).first(12)
   def citation_keys = Reference.keys_in(body)
 
   # Pull any newly cited papers from Zotero when a post is saved (best effort).

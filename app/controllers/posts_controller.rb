@@ -15,5 +15,11 @@ class PostsController < ApplicationController
     @backlinks = graph.backlinks(@post)
   end
 
+  # Research notebook: working notes by stage, most recently tended first, and every open question.
+  def notebook
+    @notes = Post.notebook.to_a
+    @questions = @notes.flat_map { |p| p.question_list.map { [_1, p] } }
+  end
+
   def feed = @posts = Post.published.limit(20)
 end

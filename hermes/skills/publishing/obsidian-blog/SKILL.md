@@ -60,6 +60,7 @@ excerpt, that's a `send` with the excerpt added to frontmatter — same draft/pu
 
 ## Note conventions (frontmatter)
 `title`, `publish: true`, `date`, `category` (informatics | ai | medicine | notes | homelab | leadership | projects — projects also appear on the home page),
+`stage: seedling | growing | mature` (makes it a working note in the research notebook), `questions:` (list of open research questions),
 `tags: [a, b]`, `description` (meta description), `slug`, `comments: false`, `blog: false` (never send).
 Obsidian callouts (`> [!tip]`, `> [!pearl]`, `> [!tldr]`, `> [!warning]`, `> [!definition]`, foldable `> [!faq]-`),
 `==highlights==`, `[[links]]` and `%%private comments%%` (stripped) are converted by the blog. Image embeds are not uploaded.

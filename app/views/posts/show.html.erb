@@ -29,6 +29,12 @@
     </p>
     <h1><%= @post.display_title %></h1>
     <% if @post.excerpt.present? %><p class="lede"><%= @post.excerpt %></p><% end %>
+    <% if (st = @post.stage_info) %>
+      <p class="notebook-banner stage-<%= @post.notebook_stage %>"><span aria-hidden="true"><%= st[:icon] %></span>
+        <strong>Working note · <%= st[:label].downcase %></strong> — <%= st[:blurb] %>.
+        Last tended <time datetime="<%= @post.updated_at.iso8601 %>"><%= @post.updated_at.strftime("%B %-d, %Y") %></time>.
+        <%= link_to "notebook", notebook_path %></p>
+    <% end %>
   </header>
 
   <div class="post-grid">
@@ -46,6 +52,14 @@
   <% end %>
   <div class="prose"><%= @post.rendered_html %></div>
   </div>
+
+  <% if (qs = @post.question_list).any? %>
+    <aside class="open-questions" aria-labelledby="oq-h">
+      <p class="toc-head" id="oq-h"><span>OPEN QUESTIONS</span><span class="tagname">*questions*</span></p>
+      <ul><% qs.each do |q| %><li><%= q %></li><% end %></ul>
+      <% if @post.comments_open? %><p class="muted small">Have evidence or a lead? <a href="#comments">Leave a comment</a>.</p><% end %>
+    </aside>
+  <% end %>
 
   <% if @post.tag_list.any? %>
     <p class="tags">tags: <% @post.tag_list.each do |t| %><%= link_to t, tag_path(t) %> <% end %></p>

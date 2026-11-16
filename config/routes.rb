@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   get "projects" => "pages#projects"
   get "search" => "search#index"
   get "graph" => "graph#show"
+  get "notebook" => "posts#notebook"
   resources :posts, only: %i[index show], path: "blog" do
     resources :comments, only: :create do
       post :vote, on: :member
