@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_14_040110) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_17_000300) do
   create_table "api_tokens", force: :cascade do |t|
     t.string "name"
     t.string "token_digest"
@@ -31,7 +31,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_14_040110) do
     t.string "ip_hash"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "anchor"
+    t.string "anchor_text"
     t.index ["parent_id"], name: "index_comments_on_parent_id"
+    t.index ["post_id", "anchor"], name: "index_comments_on_post_id_and_anchor"
     t.index ["post_id"], name: "index_comments_on_post_id"
   end
 

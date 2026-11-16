@@ -77,6 +77,9 @@ class Post < ApplicationRecord
   def rendered_html = processed.first
   def toc = processed.last
   def cited_references = (processed; @cited || [])
+
+  # { "para-1a2b3c4d" => "passage text" } for every passage readers can comment on.
+  def paragraphs = (processed; @paragraphs || {})
   def citation_keys = Reference.keys_in(body)
 
   # Pull any newly cited papers from Zotero when a post is saved (best effort).
@@ -122,6 +125,7 @@ class Post < ApplicationRecord
         toc << { id:, text: plain, level: h.name == "h2" ? 2 : 3 }
       end
       doc.css("a[href^='http']").each { |a| a["rel"] = "noopener"; a["target"] = "_blank" }
+      @paragraphs = anchor_paragraphs(doc)
       [doc.to_html.html_safe, toc]
     end
   end
@@ -166,6 +170,23 @@ class Post < ApplicationRecord
     end
     doc.add_child(%(<h2>References</h2><ol class="references">#{items.join}</ol>))
     order.map { refs[_1] }
+  end
+
+  # Give each passage (paragraph, or list item without paragraphs) a stable id from its text, so
+  # comments can point at it. Editing a passage changes its id; comments on the old text keep a quote.
+  def anchor_paragraphs(doc)
+    seen = Hash.new(0)
+    doc.css("p, li").each_with_object({}) do |el, out|
+      next if el.name == "li" && el.at_css("p")
+      next if el.ancestors("ol.references, summary, table").any? || el["id"].present?
+      text = el.text.squish
+      next if text.length < 20
+      base = "para-#{Digest::SHA1.hexdigest(text)[0, 8]}"
+      id = seen[base].zero? ? base : "#{base}-#{seen[base]}"
+      seen[base] += 1
+      el["id"] = id
+      out[id] = text
+    end
   end
 
   def markdown(src)

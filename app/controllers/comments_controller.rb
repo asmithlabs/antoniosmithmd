@@ -16,7 +16,7 @@ class CommentsController < ApplicationController
     if @comment.save
       cookies.permanent[:commenter] = @comment.author_name
       msg = @comment.approved ? "Comment posted." : "Thanks — your comment is awaiting approval."
-      redirect_to post_path(@post, anchor: @comment.approved ? "c#{@comment.id}" : "comments"), notice: msg
+      redirect_to post_path(@post, anchor: @comment.approved ? "c#{@comment.id}" : (@comment.anchor || "comments")), notice: msg
     else
       redirect_to post_path(@post, anchor: "comments"), alert: @comment.errors.full_messages.to_sentence
     end
@@ -35,5 +35,5 @@ class CommentsController < ApplicationController
 
   private
   def set_post = @post = Post.published.find_by!(slug: params[:post_id])
-  def comment_params = params.require(:comment).permit(:author_name, :body, :parent_id)
+  def comment_params = params.require(:comment).permit(:author_name, :body, :parent_id, :anchor)
 end

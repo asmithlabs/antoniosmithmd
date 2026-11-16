@@ -61,6 +61,39 @@
   <% end %>
 
   <%= render "comments/section", post: @post, tree: @tree %>
+  <% counts = (@tree[nil] || []).select(&:anchored?).group_by(&:anchor).transform_values { |cs| { n: cs.size, first: "c#{cs.first.id}" } } %>
+  <script type="application/json" id="para-data"><%= raw({ counts:, open: @post.comments_open? }.to_json.gsub("</", "<\\/")) %></script>
+  <script>
+  // Paragraph-level discussion: a ¶ button on each passage (with a count when it has comments).
+  (() => {
+    const data = JSON.parse(document.getElementById("para-data").textContent)
+    const form = document.querySelector("#comments > .cform"), field = form?.querySelector(".anchor-field"), quote = form?.querySelector(".anchor-quote")
+    const flash = el => { el.classList.add("para-flash"); setTimeout(() => el.classList.remove("para-flash"), 1600) }
+    document.querySelectorAll(".prose [id^='para-']").forEach(p => {
+      const c = data.counts[p.id]; if (!c && !(data.open && field)) return
+      const text = p.textContent.trim()
+      const tools = document.createElement("span"); tools.className = "para-tools" + (c ? " has" : "")
+      if (c) {
+        const b = Object.assign(document.createElement("a"), { href: "#" + c.first, className: "para-count", textContent: `¶ ${c.n}` })
+        b.setAttribute("aria-label", `${c.n} comment${c.n === 1 ? "" : "s"} on this passage`); tools.append(b)
+      }
+      if (data.open && field) {
+        const add = Object.assign(document.createElement("button"), { type: "button", className: "para-add", textContent: c ? "+" : "¶ +" })
+        add.setAttribute("aria-label", "Comment on this passage"); add.title = "Comment on this passage"
+        add.addEventListener("click", () => {
+          field.value = p.id; quote.hidden = false
+          quote.querySelector("q").textContent = text.length > 160 ? text.slice(0, 160) + "…" : text
+          form.scrollIntoView({ behavior: "smooth", block: "center" }); form.querySelector("textarea").focus({ preventScroll: true })
+        })
+        tools.append(add)
+      }
+      p.append(" ", tools)
+    })
+    quote?.querySelector(".anchor-clear").addEventListener("click", () => { field.value = ""; quote.hidden = true })
+    document.addEventListener("click", e => { const a = e.target.closest("a.to-passage"); if (a) { const t = document.querySelector(a.getAttribute("href")); if (t) setTimeout(() => flash(t), 50) } })
+    if (location.hash.startsWith("#para-")) { const t = document.querySelector(location.hash); if (t) flash(t) }
+  })()
+  </script>
   <p class="back"><%= link_to "← all posts", posts_path %></p>
 </article>
 <script>
