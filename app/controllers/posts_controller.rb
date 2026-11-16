@@ -13,6 +13,7 @@ class PostsController < ApplicationController
     graph = KnowledgeGraph.current
     @related = graph.related(@post)
     @backlinks = graph.backlinks(@post)
+    @post_projects = graph.projects_for(@post)
   end
 
   def feed = @posts = Post.published.limit(20)
