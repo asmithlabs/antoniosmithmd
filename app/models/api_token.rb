@@ -1,7 +1,8 @@
 class ApiToken < ApplicationRecord
   SCOPES = {
     "draft"   => "Drafts only — can create/update unpublished posts and read comments (use for AI agents)",
-    "publish" => "Full — can publish posts and moderate comments (use for your Obsidian sync)"
+    "publish" => "Full — can publish posts and moderate comments (use for your Obsidian sync)",
+    "portfolio" => "Portfolio only — can update the project cards on /projects and nothing else (use for hermes-ops)"
   }.freeze
   validates :name, presence: true
   validates :scope, inclusion: { in: SCOPES.keys }
@@ -15,4 +16,5 @@ class ApiToken < ApplicationRecord
   def self.digest(t) = OpenSSL::HMAC.hexdigest("SHA256", Rails.application.secret_key_base, t.to_s)
   def self.authenticate(t) = t.present? ? find_by(token_digest: digest(t)) : nil
   def publish? = scope == "publish"
+  def allowed?(scopes) = scopes.include?(scope)
 end

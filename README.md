@@ -68,7 +68,38 @@ They can't publish, edit live posts, or moderate. Posts show their source in adm
     DELETE /api/v1/posts/:slug                  # full tokens only
     GET    /api/v1/comments[?since=ISO8601&pending=1]
     PATCH  /api/v1/comments/:id {approved}      # full tokens only
+    POST   /api/v1/uploads                      # multipart, field "file" -> {url, absolute_url}
     Header: Authorization: Bearer asm_...
+
+## Portfolio cards (API)
+The **Portfolio** section of `/projects` (and the first six cards on the home page) is fed by hermes-ops with
+a **Portfolio only** token. That token can't touch posts or comments, and drafts-only tokens can't touch the
+portfolio (every API controller lists the scopes it accepts; anything not listed gets 403).
+
+    GET    /api/v1/portfolio                     # all cards, including hidden ones
+    GET    /api/v1/portfolio/:slug
+    PUT    /api/v1/portfolio/:slug               # upsert: {name, summary, status, stage, domain, stack[] | "a, b",
+                                                 #          url, repo_url, position, last_activity_at}
+    DELETE /api/v1/portfolio/:slug
+
+- Everything sent is public. The sender sends only de-identified text it was told is public; this site
+  does no scrubbing. Fields are plain text and always escaped on render.
+- `status` is one of `idea active paused shipped archived`; archived cards aren't listed. Links must be https.
+  `slug` is lowercase letters, digits and dashes.
+- **Admin → portfolio** hides/shows or deletes a card. `hidden` can't be set through the API, so a hidden card
+  stays hidden through later syncs. A deleted card comes back on the next sync unless it is removed at the source.
+## Images
+Upload from the editor's **upload** button, or `POST /api/v1/uploads` (any token, drafts-only included):
+
+    curl -H "Authorization: Bearer asm_..." -F file=@figure.png https://antoniosmithmd.com/api/v1/uploads
+
+Use the returned `url` as an `<img src>` or in Markdown: `![alt text](/uploads/....png)`.
+- PNG, JPEG, GIF and WebP only, 5 MB max. The type is read from the file's first bytes, not its name.
+  **SVG is refused**: served from this site it could carry script. Put an SVG in `public/` through a PR instead.
+- Metadata is removed before storing (GPS position, camera, comments). JPEG keeps only its orientation.
+- Files live in `storage/uploads/` on the storage volume, so the dataset snapshots cover them. Names are a hash
+  of the contents: the same image uploaded twice is one file. There is no delete yet; remove a file by hand.
+- An uploaded image is public to anyone who has its URL, even while the post is a draft.
 
 ## Editorial review
 `GET /api/v1/posts/:slug/review` flags things worth a second look before publishing — unresolved `[@key]`

@@ -117,7 +117,10 @@
     const body = li.querySelector(".ref-body")?.innerHTML || li.innerHTML
     const link = li.querySelector(".ref-link")
     const n = a.getAttribute("href").replace("#ref-", "")
-    card.innerHTML = `<p class="cc-n">[${n}]</p><p>${body}</p><p class="cc-actions">${link ? `<a href="${link.href}" target="_blank" rel="noopener">open source ↗</a> · ` : ""}<a href="#ref-${n}">jump to reference list</a></p>`
+    const ev = a.dataset.evidence ? Object.assign(document.createElement("blockquote"), { className: "cc-evidence", textContent: a.dataset.evidence }).outerHTML : ""
+    const loc = a.textContent.match(/\((.+)\)/)?.[1]
+    const evNote = ev ? `<p class="cc-evidence-note">Supporting passage${loc ? ` (${loc.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c])})` : ""}</p>` : ""
+    card.innerHTML = `<p class="cc-n">[${n}]</p>${ev}${evNote}<p>${body}</p><p class="cc-actions">${link ? `<a href="${link.href}" target="_blank" rel="noopener">open source ↗</a> · ` : ""}<a href="#ref-${n}">jump to reference list</a></p>`
     card.hidden = false
     const r = a.getBoundingClientRect(), w = Math.min(420, innerWidth - 16)
     card.style.width = w + "px"

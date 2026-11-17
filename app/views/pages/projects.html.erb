@@ -2,6 +2,29 @@
 <% content_for :description, "Projects by #{SITE[:name]}: write-ups and open-source code." %>
 <section class="hero"><p class="eyebrow">projects</p><h1>Projects</h1></section>
 
+<% if @portfolio.any? %>
+  <h2 class="section">Portfolio <span class="tag-r">*portfolio*</span></h2>
+  <p class="muted">What I'm building and working on, updated automatically as the work moves.</p>
+  <ul class="post-list portfolio">
+  <% @portfolio.each do |pp| %>
+    <li id="<%= pp.slug %>">
+      <p class="meta">
+        <span class="pf-status pf-<%= pp.status %>"><%= pp.status %></span><%= " · #{pp.stage}" if pp.stage.present? %><%= " · #{pp.domain}" if pp.domain.present? %>
+        <% if pp.last_activity_at %> · updated <%= time_ago_in_words(pp.last_activity_at) %> ago<% end %>
+      </p>
+      <h2><%= pp.url.present? ? link_to(pp.name, pp.url, rel: "noopener") : pp.name %></h2>
+      <% if pp.summary.present? %><p class="excerpt"><%= pp.summary %></p><% end %>
+      <% if pp.stack_list.any? || pp.repo_url.present? %>
+        <p class="repo-links">
+          <% if pp.repo_url.present? %><%= link_to "code ↗", pp.repo_url, rel: "noopener" %><% end %>
+          <% pp.stack_list.first(6).each do |t| %> <span class="repo-topic">*<%= t %>*</span><% end %>
+        </p>
+      <% end %>
+    </li>
+  <% end %>
+  </ul>
+<% end %>
+
 <% if @projects.any? %>
   <h2 class="section">Write-ups <span class="tag-r">*write-ups*</span></h2>
   <ul class="post-list">
@@ -38,4 +61,4 @@
   </ul>
 <% end %>
 
-<% if @projects.empty? && @repos.empty? && SITE[:projects].blank? %><p class="muted">Coming soon.</p><% end %>
+<% if @portfolio.empty? && @projects.empty? && @repos.empty? && SITE[:projects].blank? %><p class="muted">Coming soon.</p><% end %>
