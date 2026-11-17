@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 640" width="680" height="640" role="img" aria-labelledby="t d" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title id="t">Hermes personal operations system map</title>
+  <desc id="d">Telegram and a read-only dashboard sit above a home server. On the server, the Hermes agent calls an operations service and a development orchestrator, which use a task database, local models and a blog. Outside the server are a personal calendar and mail account, a busy-only work calendar, GitHub and a cloud model.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#677684" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <style>
+      .h { font-size: 14px; font-weight: 600; fill: #1f2a30; }
+      .s { font-size: 12px; fill: #677684; }
+      .hw { font-size: 14px; font-weight: 600; fill: #ffffff; }
+      .sw { font-size: 12px; fill: #cfe3ea; }
+      .ht { font-size: 14px; font-weight: 600; fill: #00485F; }
+      .st { font-size: 12px; fill: #2f6a7c; }
+      .app { fill: #f5f6f7; stroke: #677684; stroke-width: 1; }
+      .svc { fill: #e6f0f3; stroke: #00485F; stroke-width: 1; }
+      .arr { stroke: #677684; stroke-width: 1.5; fill: none; }
+      text { text-anchor: middle; dominant-baseline: central; }
+    </style>
+  </defs>
+
+  <rect x="0.5" y="0.5" width="679" height="639" rx="12" fill="#ffffff" stroke="#d9dde1"/>
+  <text x="340" y="34" font-size="16" font-weight="600" fill="#1f2a30">Hermes personal operations: system map</text>
+
+  <rect class="app" x="40" y="70" width="285" height="56" rx="8"/>
+  <text class="h" x="182" y="88">Telegram</text>
+  <text class="s" x="182" y="108">Capture, approvals, briefings</text>
+
+  <rect class="app" x="355" y="70" width="285" height="56" rx="8"/>
+  <text class="h" x="497" y="88">Dashboard</text>
+  <text class="s" x="497" y="108">Read-only project status</text>
+
+  <rect x="40" y="166" width="600" height="312" rx="16" fill="none" stroke="#986C2B" stroke-width="1" stroke-dasharray="5 4"/>
+  <text x="620" y="189" font-size="12" fill="#986C2B" style="text-anchor:end">Home server, Docker</text>
+
+  <line class="arr" x1="182" y1="126" x2="182" y2="205" marker-end="url(#arrow)"/>
+
+  <rect x="60" y="210" width="560" height="56" rx="8" fill="#00485F"/>
+  <text class="hw" x="340" y="228">Hermes agent</text>
+  <text class="sw" x="340" y="248">Chief-of-staff skill, scheduled briefings</text>
+
+  <line class="arr" x1="195" y1="266" x2="195" y2="301" marker-end="url(#arrow)"/>
+  <line class="arr" x1="485" y1="266" x2="485" y2="301" marker-end="url(#arrow)"/>
+
+  <rect class="svc" x="60" y="306" width="270" height="56" rx="8"/>
+  <text class="ht" x="195" y="324">Operations service (MCP)</text>
+  <text class="st" x="195" y="344">Rules, approvals, audit log</text>
+
+  <rect class="svc" x="350" y="306" width="270" height="56" rx="8"/>
+  <text class="ht" x="485" y="324">Dev orchestrator (MCP)</text>
+  <text class="st" x="485" y="344">Agent coding runs, end at a PR</text>
+
+  <line class="arr" x1="146" y1="362" x2="146" y2="397" marker-end="url(#arrow)"/>
+
+  <rect class="app" x="60" y="402" width="173" height="56" rx="8"/>
+  <text class="h" x="146" y="420">Vikunja + Postgres</text>
+  <text class="s" x="146" y="440">Task database</text>
+
+  <rect class="app" x="253" y="402" width="173" height="56" rx="8"/>
+  <text class="h" x="339" y="420">Ollama</text>
+  <text class="s" x="339" y="440">Local open-weight models</text>
+
+  <rect class="app" x="446" y="402" width="174" height="56" rx="8"/>
+  <text class="h" x="533" y="420">Rails blog</text>
+  <text class="s" x="533" y="440">Public site</text>
+
+  <rect class="app" x="40" y="518" width="135" height="56" rx="8"/>
+  <text class="h" x="107" y="536">Google</text>
+  <text class="s" x="107" y="556">Calendar, mail</text>
+
+  <rect class="app" x="195" y="518" width="135" height="56" rx="8"/>
+  <text class="h" x="262" y="536">Work calendar</text>
+  <text class="s" x="262" y="556">Busy times only</text>
+
+  <rect class="app" x="350" y="518" width="135" height="56" rx="8"/>
+  <text class="h" x="417" y="536">GitHub</text>
+  <text class="s" x="417" y="556">Branches and PRs</text>
+
+  <rect class="app" x="505" y="518" width="135" height="56" rx="8"/>
+  <text class="h" x="572" y="536">Cloud model</text>
+  <text class="s" x="572" y="556">Planning, building</text>
+
+  <rect x="40" y="602" width="12" height="12" rx="2" fill="#00485F"/>
+  <text class="s" x="60" y="608" style="text-anchor:start">Agent</text>
+  <rect class="svc" x="120" y="602" width="12" height="12" rx="2"/>
+  <text class="s" x="140" y="608" style="text-anchor:start">Custom services</text>
+  <rect class="app" x="260" y="602" width="12" height="12" rx="2"/>
+  <text class="s" x="280" y="608" style="text-anchor:start">Apps and outside services</text>
+  <text class="s" x="640" y="608" style="text-anchor:end">Calendar changes need approval</text>
+</svg>

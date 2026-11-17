@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 442" width="680" height="442" role="img" aria-labelledby="t d" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title id="t">The dev orchestrator</title><desc id="d">The agent starts a coding run in the dev orchestrator, which plans, builds, reviews and scans, working through a network allowlist and ending at a pull request a human merges.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#677684" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>.h{font-size:14px;font-weight:600;fill:#1f2a30}.s{font-size:12px;fill:#677684}.hw{font-size:14px;font-weight:600;fill:#fff}.sw{font-size:12px;fill:#cfe3ea}.ht{font-size:14px;font-weight:600;fill:#00485F}.st{font-size:12px;fill:#2f6a7c}.app{fill:#f5f6f7;stroke:#677684}.svc{fill:#e6f0f3;stroke:#00485F}.arr{stroke:#677684;stroke-width:1.5;fill:none}text{text-anchor:middle;dominant-baseline:central}</style></defs>
+<rect x="0.5" y="0.5" width="679" height="441" rx="12" fill="#fff" stroke="#d9dde1"/>
+<text x="340" y="34" font-size="16" font-weight="600" fill="#1f2a30">The dev orchestrator</text>
+<rect x="200" y="70" width="280" height="56" rx="8" fill="#00485F"/><text class="hw" x="340.0" y="88">Hermes agent</text><text class="sw" x="340.0" y="108">Starts a run after approval</text>
+<line class="arr" x1="340" y1="126" x2="340" y2="165" marker-end="url(#arrow)"/>
+<rect x="40" y="170" width="600" height="146" rx="16" fill="none" stroke="#00485F" stroke-dasharray="5 4"/>
+<text class="ht" x="340" y="194">Dev orchestrator: every run ends at a pull request</text>
+<rect class="app" x="60.0" y="214" width="125.0" height="82" rx="8"/><text class="h" x="122.5" y="236">Planner</text><text class="s" x="122.5" y="260">Splits the work</text><text class="s" x="122.5" y="276">into features</text>
+<rect class="app" x="205.0" y="214" width="125.0" height="82" rx="8"/><text class="h" x="267.5" y="236">Builder</text><text class="s" x="267.5" y="260">Writes code</text><text class="s" x="267.5" y="276">on a branch</text>
+<rect class="app" x="350.0" y="214" width="125.0" height="82" rx="8"/><text class="h" x="412.5" y="236">Reviewers</text><text class="s" x="412.5" y="260">A second</text><text class="s" x="412.5" y="276">model family</text>
+<rect class="app" x="495.0" y="214" width="125.0" height="82" rx="8"/><text class="h" x="557.5" y="236">Security scan</text><text class="s" x="557.5" y="260">Static</text><text class="s" x="557.5" y="276">analysis</text>
+<line class="arr" x1="133" y1="316" x2="133" y2="351" marker-end="url(#arrow)"/>
+<line class="arr" x1="340" y1="316" x2="340" y2="351" marker-end="url(#arrow)"/>
+<line class="arr" x1="547" y1="316" x2="547" y2="351" marker-end="url(#arrow)"/>
+<rect class="app" x="40.0" y="356" width="186.7" height="56" rx="8"/><text class="h" x="133.35" y="374">Egress proxy</text><text class="s" x="133.35" y="394">Allowlisted sites only</text>
+<rect class="app" x="246.7" y="356" width="186.7" height="56" rx="8"/><text class="h" x="340.04999999999995" y="374">GitHub</text><text class="s" x="340.04999999999995" y="394">Branch and pull request</text>
+<rect class="app" x="453.3" y="356" width="186.7" height="56" rx="8"/><text class="h" x="546.65" y="374">Human</text><text class="s" x="546.65" y="394">Reviews and merges</text>
+</svg>

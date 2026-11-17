@@ -11,7 +11,7 @@ class Post < ApplicationRecord
 
   ALLOWED_TAGS = %w[p br h2 h3 h4 strong em s u code pre blockquote ul ol li a img hr table thead tbody tr th td
                     aside details summary div span mark sup sub figure figcaption].freeze
-  ALLOWED_ATTRS = %w[href src alt title class id data-type data-kind data-cite data-locator open colspan rowspan target rel].freeze
+  ALLOWED_ATTRS = %w[href src alt title class id data-type data-kind data-cite data-locator data-evidence open colspan rowspan target rel].freeze
 
   has_many :comments, dependent: :destroy
   has_many :revisions, -> { order(created_at: :desc) }, class_name: "PostRevision", dependent: :delete_all
@@ -134,7 +134,12 @@ class Post < ApplicationRecord
   # [@key] / [@a; @b, p. 4] -> numbered superscripts + a References section (order of first citation)
   def apply_citations(doc)
     return [] unless doc.text.include?("@")
-    doc.css("span[data-cite]").each { |sp| sp.replace(Nokogiri::XML::Text.new(sp.text, doc.document)) }
+    evidence = {}   # [key, locator] -> supporting passage typed in the editor (first one wins)
+    doc.css("span[data-cite]").each do |sp|
+      ev = sp["data-evidence"].to_s.squish.first(600)
+      evidence[[sp["data-cite"].to_s, sp["data-locator"].to_s.strip]] ||= ev if ev.present?
+      sp.replace(Nokogiri::XML::Text.new(sp.text, doc.document))
+    end
     merged = doc.to_html
     loop { nxt = merged.gsub(/(\[-?@[^\]\[]*)\][[:space:]\u00A0]*(?:&nbsp;)?[[:space:]\u00A0]*\[(-?@)/, '\\1; \\2'); break if nxt == merged; merged = nxt }
     doc.children.each(&:remove); doc.add_child(Nokogiri::HTML.fragment(merged))
@@ -152,7 +157,10 @@ class Post < ApplicationRecord
           order << key unless order.include?(key)
           n = order.index(key) + 1
           label = locator ? "#{n} (#{ERB::Util.h(locator)})" : n.to_s
-          %(<a href="#ref-#{n}" class="cite" title="#{ERB::Util.h("#{ref.short_label} — #{ref.title}")}">#{label}</a>)
+          ev = evidence[[key, locator.to_s.strip]]
+          title = ev ? "#{ref.short_label} — “#{ev}”" : "#{ref.short_label} — #{ref.title}"
+          ev_attr = ev ? %( data-evidence="#{ERB::Util.h(ev)}") : ""
+          %(<a href="#ref-#{n}" class="cite#{" has-evidence" if ev}" title="#{ERB::Util.h(title)}"#{ev_attr}>#{label}</a>)
         end
         cites.empty? ? whole : %(<sup class="cites">[#{cites.join(", ")}]</sup>)
       end
