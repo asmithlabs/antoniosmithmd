@@ -48,6 +48,8 @@ class Post < ApplicationRecord
   TITLE_TAGS = %w[strong em u s code a mark sup sub].freeze
   before_validation :normalize_title
   before_validation { self.category = category.presence; self.tags = tags.presence; self.excerpt = excerpt.presence }
+  before_validation { self.code_links = code_links.to_s.lines.map(&:strip).reject(&:blank?).join("\n").presence }
+  validate :code_links_valid
   before_validation { self.slug = (slug.presence || title).to_s.parameterize }
 
   # Rich title (bold/italic/code/links). `title` stays plain text for <title>, SEO, RSS, URLs.
@@ -68,6 +70,8 @@ class Post < ApplicationRecord
   def plain_text = Nokogiri::HTML.fragment(rendered_html).xpath(".//text()").map(&:text).join(" ").squish
   def reading_minutes = [(plain_text.split.size / 220.0).ceil, 1].max
   def description = excerpt.presence || plain_text.truncate(155)
+  def code_link_list = (CodeLink.parse_all(code_links) rescue [])
+
   def updated_or_published = [updated_at, published_at].compact.max
 
   # Comments
@@ -93,6 +97,12 @@ class Post < ApplicationRecord
   public
 
   private
+
+  def code_links_valid
+    lines = code_links.to_s.lines.reject(&:blank?)
+    errors.add(:code_links, "can have at most #{CodeLink::MAX} links") if lines.size > CodeLink::MAX
+    lines.each { CodeLink.parse(_1) rescue errors.add(:code_links, $!.message) }
+  end
 
   def snapshot_revision
     was_live = published_at_was.present? && published_at_was <= Time.current

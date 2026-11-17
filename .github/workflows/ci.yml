@@ -35,6 +35,8 @@ jobs:
         run: bin/rails runner script/smoke/public_history.rb
       - name: Portfolio projects on the graph
         run: bin/rails runner script/smoke/graph_portfolio.rb
+      - name: Post code links
+        run: bin/rails runner script/smoke/code_links.rb
       - name: Citation evidence renders escaped
         run: bin/rails runner script/smoke/citation_evidence.rb
       - name: Boot and load every page

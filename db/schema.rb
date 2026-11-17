@@ -10,7 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_17_000000) do
+<<<<<<< HEAD
+=======
+ActiveRecord::Schema[8.1].define(version: 2026_11_17_000100) do
+>>>>>>> origin/feat/post-code-links
   create_table "api_tokens", force: :cascade do |t|
     t.string "name"
     t.string "token_digest"
@@ -100,6 +103,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_000000) do
     t.boolean "share_mastodon", default: true, null: false
     t.string "mastodon_url"
     t.datetime "mastodon_posted_at"
+    t.text "code_links"
     t.index ["slug"], name: "index_posts_on_slug", unique: true
   end
 

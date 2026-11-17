@@ -63,6 +63,22 @@
     </ul>
   <% end %>
 
+  <% if (links = @post.code_link_list).any? %>
+    <% repos = GithubProjects.cached.index_by { _1.full_name.downcase } %>
+    <aside class="code-links" aria-labelledby="code-links-h">
+      <p class="toc-head" id="code-links-h"><span>CODE &amp; PROJECT</span><span class="tagname">*code*</span></p>
+      <ul>
+        <% links.each do |l| %>
+          <% live = l.kind == "repo" && repos[l.repo.to_s.downcase] %>
+          <li><span class="cl-kind <%= l.kind %>"><%= l.kind_label %></span>
+            <%= link_to l.label, l.url, rel: "noopener", target: "_blank" %>
+            <% if live %><span class="muted"><%= [live.language, ("★ #{live.stars}" if live.stars.to_i.positive?), ("updated #{time_ago_in_words(live.pushed_at)} ago" if live.pushed_at)].compact.join(" · ") %></span><% end %>
+          </li>
+        <% end %>
+      </ul>
+    </aside>
+  <% end %>
+
   <% if @post.tag_list.any? %>
     <p class="tags">tags: <% @post.tag_list.each do |t| %><%= link_to t, tag_path(t) %> <% end %></p>
   <% end %>
