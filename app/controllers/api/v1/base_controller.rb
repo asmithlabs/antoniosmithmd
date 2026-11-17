@@ -1,6 +1,9 @@
 module Api
   module V1
     class BaseController < ActionController::API
+      # Scopes allowed to call a controller. Default-deny: a new scope (e.g. "portfolio")
+      # can reach only the controllers that list it.
+      class_attribute :allowed_scopes, default: %w[draft publish].freeze
       before_action :authenticate!
       rescue_from ActiveRecord::RecordNotFound, with: -> { render json: { error: "not found" }, status: :not_found }
       rescue_from ActionController::ParameterMissing, with: ->(e) { render json: { error: e.message }, status: :bad_request }
@@ -12,6 +15,7 @@ module Api
         raw = request.authorization.to_s[/\ABearer (.+)\z/, 1]
         @token = ApiToken.authenticate(raw)
         return render(json: { error: "invalid token" }, status: :unauthorized) unless @token
+        return render(json: { error: "this token can't use this endpoint" }, status: :forbidden) unless @token.allowed?(allowed_scopes)
         @token.touch(:last_used_at)
       end
 

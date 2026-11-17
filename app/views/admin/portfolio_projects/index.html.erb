@@ -1,0 +1,20 @@
+<h1>Portfolio</h1>
+<p class="muted">Project cards on <%= link_to "/projects", projects_path %>, sent by hermes-ops with a <strong>portfolio</strong> token (create one under <%= link_to "connections", admin_api_tokens_path %>). Text is edited at the source; here you can hide a card (it stays hidden through later syncs) or delete it.</p>
+<table class="admin-table">
+  <thead><tr><th>Project</th><th>Status</th><th>Last activity</th><th>Updated by</th><th></th></tr></thead>
+  <tbody>
+  <% @projects.each do |p| %>
+    <tr>
+      <td><strong><%= p.name %></strong><% if p.hidden %> <span class="muted">(hidden)</span><% end %><br><span class="muted"><%= p.summary.to_s.truncate(90) %></span></td>
+      <td><%= p.status %><%= " · #{p.stage}" if p.stage.present? %></td>
+      <td class="muted"><%= p.last_activity_at ? "#{time_ago_in_words(p.last_activity_at)} ago" : "—" %></td>
+      <td class="muted"><%= p.source %></td>
+      <td class="actions">
+        <%= button_to (p.hidden ? "show" : "hide"), admin_portfolio_project_path(p), method: :patch, params: { hidden: !p.hidden }, class: "link" %>
+        <%= button_to "delete", admin_portfolio_project_path(p), method: :delete, class: "link-danger", form: { onsubmit: "return confirm('Delete this card? The next sync will re-create it unless it is removed at the source.')" } %>
+      </td>
+    </tr>
+  <% end %>
+  <% if @projects.empty? %><tr><td colspan="5" class="muted">No project cards yet.</td></tr><% end %>
+  </tbody>
+</table>
