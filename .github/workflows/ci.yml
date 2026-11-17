@@ -41,6 +41,8 @@ jobs:
         run: bin/rails runner script/smoke/mastodon_replies.rb
       - name: Reasoning block
         run: bin/rails runner script/smoke/reasoning_block.rb
+      - name: Paragraph comments
+        run: bin/rails runner script/smoke/paragraph_comments.rb
       - name: Citation evidence renders escaped
         run: bin/rails runner script/smoke/citation_evidence.rb
       - name: Boot and load every page

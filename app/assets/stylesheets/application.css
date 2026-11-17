@@ -309,5 +309,14 @@ main.wide-graph{max-width:140ch}
 .fediverse .fedi-replies.flat{padding-left:0;border-left:0}
 .fediverse .fedi-replies>li{margin:0 0 1em}.fediverse .meta{margin:0 0 .2em;font-size:.88rem}
 .fediverse .fedi-body p{margin:.2em 0}.fediverse .fedi-cw summary{cursor:pointer;color:var(--gold)}
+.para-tools{white-space:nowrap;font-size:.78rem;margin-left:.3ch;opacity:0;transition:opacity .15s}
+.prose [id^=para-]:hover .para-tools,.para-tools:focus-within,.para-tools.has{opacity:1}
+@media (hover:none){.para-tools{opacity:.7}}
+.para-tools a.para-count{color:var(--gold);text-decoration:none;border-bottom:1px dotted var(--gold)}
+.para-tools .para-add{font:inherit;background:none;border:0;color:var(--slate);cursor:pointer;padding:0 .4ch}
+.para-tools .para-add:hover,.para-tools .para-add:focus-visible{color:var(--teal)}
+.para-flash{background:color-mix(in srgb,var(--gold-l) 35%,transparent);transition:background .4s}
+.cmt-anchor{margin:0 0 .3em;font-size:.85rem}.cmt-anchor a{color:var(--slate)}
+.anchor-quote{margin:.2em 0 .4em;font-size:.88rem}.anchor-quote q{font-style:italic}
 /* portfolio cards (API-fed) */
 .pf-status{font-weight:600;color:var(--slate)}.pf-active{color:var(--teal)}.pf-shipped{color:var(--gold)}

@@ -11,6 +11,15 @@
       <%= button_to "▼", vote_post_comment_path(post, comment, dir: "down"), class: ["v", ("on" if session.dig(:votes, comment.id.to_s).to_i == -1)], title: "Downvote", form_class: "vf" %>
     </div>
     <div class="cmt-main">
+      <% if comment.anchored? %>
+        <p class="cmt-anchor">
+          <% if comment.anchor_current?(post.paragraphs) %>
+            <a href="#<%= comment.anchor %>" class="to-passage">on ¶ “<%= comment.anchor_text.truncate(140, separator: " ") %>”</a>
+          <% else %>
+            <span class="muted">on a passage that has since been edited: “<%= comment.anchor_text.truncate(140, separator: " ") %>”</span>
+          <% end %>
+        </p>
+      <% end %>
       <div class="cmt-body"><%= simple_format(comment.body, {}, wrapper_tag: "p") %></div>
       <p class="cmt-actions">
         <a href="#c<%= comment.id %>">permalink</a>
