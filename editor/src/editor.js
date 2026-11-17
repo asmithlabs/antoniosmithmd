@@ -133,6 +133,23 @@ export function mount(textarea) {
     onSelectionUpdate: () => refresh(),
   })
   const c = () => editor.chain().focus()
+
+  // Image upload: the server checks the type and size, strips metadata, and returns the URL.
+  const file = document.createElement("input"); file.type = "file"; file.hidden = true
+  file.accept = "image/png,image/jpeg,image/gif,image/webp"; wrap.append(file)
+  file.addEventListener("change", async () => {
+    const f = file.files[0]; file.value = ""; if (!f) return
+    const body = new FormData(); body.append("file", f)
+    try {
+      const r = await fetch("/admin/uploads", { method: "POST", body, credentials: "same-origin",
+        headers: { "X-CSRF-Token": document.querySelector("meta[name=csrf-token]")?.content || "", Accept: "application/json" } })
+      if (r.redirected) throw new Error("your session ended. Save your work, sign in again, then retry")
+      const j = await r.json().catch(() => ({}))
+      if (!r.ok || !j.url) throw new Error(j.error || `the server answered ${r.status}`)
+      c().setImage({ src: j.url, alt: prompt("Alt text (for accessibility/SEO)") || "" }).run()
+    } catch (e) { alert(`Image not uploaded: ${e.message}`) }
+  })
+
   const groups = [
     [ ["H2", "Section heading (in TOC)", () => c().toggleHeading({ level: 2 }).run(), () => editor.isActive("heading", { level: 2 })],
       ["H3", "Subheading (in TOC)", () => c().toggleHeading({ level: 3 }).run(), () => editor.isActive("heading", { level: 3 })],
@@ -152,7 +169,8 @@ export function mount(textarea) {
     [ ["table", "Insert 3×3 table", () => c().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()],
       ["+row", "Add row", () => c().addRowAfter().run()], ["+col", "Add column", () => c().addColumnAfter().run()],
       ["×tbl", "Delete table", () => c().deleteTable().run()],
-      ["img", "Image by URL", () => { const src = prompt("Image URL"); if (src) c().setImage({ src, alt: prompt("Alt text (for accessibility/SEO)") || "" }).run() }] ],
+      ["img", "Image by URL", () => { const src = prompt("Image URL"); if (src) c().setImage({ src, alt: prompt("Alt text (for accessibility/SEO)") || "" }).run() }],
+      ["upload", "Upload an image (PNG, JPEG, GIF or WebP, up to 5 MB)", () => file.click()] ],
   ]
   for (const g of groups) {
     const span = document.createElement("span"); span.className = "tt-group"
