@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 442" width="680" height="442" role="img" aria-labelledby="t d" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title id="t">The agent</title><desc id="d">Telegram messages reach the Hermes agent, which holds skills, schedules and model logins, and calls two services.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#677684" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>.h{font-size:14px;font-weight:600;fill:#1f2a30}.s{font-size:12px;fill:#677684}.hw{font-size:14px;font-weight:600;fill:#fff}.sw{font-size:12px;fill:#cfe3ea}.ht{font-size:14px;font-weight:600;fill:#00485F}.st{font-size:12px;fill:#2f6a7c}.app{fill:#f5f6f7;stroke:#677684}.svc{fill:#e6f0f3;stroke:#00485F}.arr{stroke:#677684;stroke-width:1.5;fill:none}text{text-anchor:middle;dominant-baseline:central}</style></defs>
+<rect x="0.5" y="0.5" width="679" height="441" rx="12" fill="#fff" stroke="#d9dde1"/>
+<text x="340" y="34" font-size="16" font-weight="600" fill="#1f2a30">The agent</text>
+<rect class="app" x="200" y="70" width="280" height="56" rx="8"/><text class="h" x="340.0" y="88">Telegram</text><text class="s" x="340.0" y="108">Messages in, briefings out</text>
+<line class="arr" x1="340" y1="126" x2="340" y2="165" marker-end="url(#arrow)"/>
+<rect x="40" y="170" width="600" height="146" rx="16" fill="none" stroke="#00485F" stroke-dasharray="5 4"/>
+<text class="ht" x="340" y="194">Hermes agent</text>
+<rect class="app" x="60.0" y="214" width="173.3" height="82" rx="8"/><text class="h" x="146.65" y="236">Skills</text><text class="s" x="146.65" y="260">Chief of staff</text><text class="s" x="146.65" y="276">Dev orchestrator, blog</text>
+<rect class="app" x="253.3" y="214" width="173.3" height="82" rx="8"/><text class="h" x="339.95000000000005" y="236">Schedules</text><text class="s" x="339.95000000000005" y="260">Daily and weekly briefs</text><text class="s" x="339.95000000000005" y="276">Calendar sync</text>
+<rect class="app" x="446.7" y="214" width="173.3" height="82" rx="8"/><text class="h" x="533.35" y="236">Models</text><text class="s" x="533.35" y="260">Cloud model login</text><text class="s" x="533.35" y="276">Local models</text>
+<line class="arr" x1="185" y1="316" x2="185" y2="351" marker-end="url(#arrow)"/>
+<line class="arr" x1="495" y1="316" x2="495" y2="351" marker-end="url(#arrow)"/>
+<rect class="svc" x="40.0" y="356" width="290.0" height="56" rx="8"/><text class="ht" x="185.0" y="374">Operations service (MCP)</text><text class="st" x="185.0" y="394">Tasks and calendar</text>
+<rect class="svc" x="350.0" y="356" width="290.0" height="56" rx="8"/><text class="ht" x="495.0" y="374">Dev orchestrator (MCP)</text><text class="st" x="495.0" y="394">Coding runs</text>
+</svg>
