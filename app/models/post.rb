@@ -137,6 +137,7 @@ class Post < ApplicationRecord
         toc << { id:, text: plain, level: h.name == "h2" ? 2 : 3 }
       end
       doc.css("a[href^='http']").each { |a| a["rel"] = "noopener"; a["target"] = "_blank" }
+      tidy_reasoning(doc)
       [doc.to_html.html_safe, toc]
     end
   end
@@ -189,6 +190,27 @@ class Post < ApplicationRecord
     end
     doc.add_child(%(<h2>References</h2><ol class="references">#{items.join}</ol>))
     order.map { refs[_1] }
+  end
+
+  # "Follow the reasoning" blocks: collapsed for readers, and template sections left empty are dropped.
+  def tidy_reasoning(doc)
+    doc.css("details.reasoning, details[data-type=reasoning]").each do |d|
+      d.remove_attribute("open")
+      d["class"] = "reasoning"; d["data-type"] = "reasoning"
+      body = d.at_css("> div.details-body") || d
+      body.css("> h4").each do |h|
+        section = []
+        n = h.next_element
+        while n && n.name != "h4"
+          section << n
+          n = n.next_element
+        end
+        next if section.any? { _1.text.strip.present? || _1.at_css("img") }
+        section.each(&:remove)
+        h.remove
+      end
+      d.remove if body.text.strip.empty? && !body.at_css("img")
+    end
   end
 
   def markdown(src)

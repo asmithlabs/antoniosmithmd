@@ -66,6 +66,9 @@ excerpt, that's a `send` with the excerpt added to frontmatter — same draft/pu
 `tags: [a, b]`, `description` (meta description), `slug`, `comments: false`, `blog: false` (never send),
 `code:` (list of https links: repos, commits, PRs, docs, a live app; `"Label | https://…"` for a custom label) and `repo:` (one link).
 These show as a "Code & project" box at the end of the post.
+`tags: [a, b]`, `description` (meta description), `slug`, `comments: false`, `blog: false` (never send).
+`> [!reasoning] Title` becomes a collapsed "Follow the reasoning" block; use `#### Evidence`, `#### Assumptions`,
+`#### Other explanations I considered`, `#### What would change my mind`, `#### Confidence` inside it.
 Obsidian callouts (`> [!tip]`, `> [!pearl]`, `> [!tldr]`, `> [!warning]`, `> [!definition]`, foldable `> [!faq]-`),
 `==highlights==`, `[[links]]` and `%%private comments%%` (stripped) are converted by the blog. Image embeds (`![[file.png]]`, `![[file.png|alt]]`, `![alt](file.png)`; PNG/JPEG/GIF/WebP up to 5 MB) are uploaded by
 `send` and rewritten to the blog's `/uploads/` URLs. Uploads are public by URL even while the post is a draft, so tell
