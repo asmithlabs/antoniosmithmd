@@ -23,6 +23,7 @@ Rails.application.routes.draw do
       end
       resources :comments, only: %i[index update]
       resources :references, only: :index
+      resources :portfolio_projects, only: %i[index show update destroy], path: "portfolio"
       resources :uploads, only: :create
     end
   end
@@ -50,5 +51,6 @@ Rails.application.routes.draw do
       end
     end
     resources :comments, only: %i[index update destroy]
+    resources :portfolio_projects, only: %i[index update destroy], path: "portfolio"
   end
 end
