@@ -227,6 +227,9 @@ class Post < ApplicationRecord
         h.remove
       end
       d.remove if body.text.strip.empty? && !body.at_css("img")
+    end
+  end
+
   # Give each passage (paragraph, or list item without paragraphs) a stable id from its text, so
   # comments can point at it. Editing a passage changes its id; comments on the old text keep a quote.
   def anchor_paragraphs(doc)
@@ -241,6 +244,9 @@ class Post < ApplicationRecord
       seen[base] += 1
       el["id"] = id
       out[id] = text
+    end
+  end
+
   # ```mermaid fences (editor code block with language "mermaid", Markdown/Obsidian fences) become a
   # figure the page renders as a diagram. The source stays as readable text without JavaScript and in RSS.
   # A first line "%% caption: …" becomes the figure caption and the diagram's accessible name.

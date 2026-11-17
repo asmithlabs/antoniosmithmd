@@ -181,10 +181,10 @@ export function mount(textarea) {
     bar.append(span)
   }
   const sel = document.createElement("select"); sel.title = "Insert block"
-  sel.innerHTML = `<option value="">+ block…</option>` + Object.entries(KINDS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("") + `<option value="details">Collapsible</option><option value="reasoning">Follow the reasoning</option>`
-  sel.addEventListener("change", () => { const v = sel.value; sel.value = ""; if (!v) return; v === "details" ? c().insertDetails().run() : v === "reasoning" ? c().insertReasoning().run() : c().setCallout(v).run() })
-  sel.innerHTML = `<option value="">+ block…</option>` + Object.entries(KINDS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("") + `<option value="details">Collapsible</option><option value="mermaid">Diagram (Mermaid)</option>`
+  sel.innerHTML = `<option value="">+ block…</option>` + Object.entries(KINDS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")
+    + `<option value="details">Collapsible</option><option value="reasoning">Follow the reasoning</option><option value="mermaid">Diagram (Mermaid)</option>`
   sel.addEventListener("change", () => { const v = sel.value; sel.value = ""; if (!v) return; v === "details" ? c().insertDetails().run()
+    : v === "reasoning" ? c().insertReasoning().run()
     : v === "mermaid" ? c().insertContent({ type: "codeBlock", attrs: { language: "mermaid" }, content: [{ type: "text", text: "%% caption: Describe the diagram for readers\nflowchart LR\n  A[Capture] --> B[Organize] --> C[Schedule]" }] }).run()
     : c().setCallout(v).run() })
   const span = document.createElement("span"); span.className = "tt-group"; span.append(sel)
