@@ -141,6 +141,7 @@ class Post < ApplicationRecord
       raw = body.to_s.lstrip.start_with?("<") ? body.to_s : markdown(body.to_s)
       clean = ActionController::Base.helpers.sanitize(raw, tags: ALLOWED_TAGS, attributes: ALLOWED_ATTRS)
       doc = Nokogiri::HTML.fragment(clean)
+      mermaid_blocks(doc)
       @cited = apply_citations(doc)
       toc, used = [], Hash.new(0)
       doc.css("h2, h3").each do |h|
@@ -240,6 +241,25 @@ class Post < ApplicationRecord
       seen[base] += 1
       el["id"] = id
       out[id] = text
+  # ```mermaid fences (editor code block with language "mermaid", Markdown/Obsidian fences) become a
+  # figure the page renders as a diagram. The source stays as readable text without JavaScript and in RSS.
+  # A first line "%% caption: …" becomes the figure caption and the diagram's accessible name.
+  def mermaid_blocks(doc)
+    doc.css("pre > code.language-mermaid, pre > code.mermaid").each do |code|
+      src = code.text.strip
+      caption = src[/\A%%\s*caption:\s*(.+)$/i, 1]&.strip
+      fig = Nokogiri::XML::Node.new("figure", doc)
+      fig["class"] = "mermaid-figure"
+      pre = Nokogiri::XML::Node.new("pre", doc)
+      pre["class"] = "mermaid-src"; pre["data-type"] = "mermaid"
+      pre.content = src
+      fig.add_child(pre)
+      if caption.present?
+        cap = Nokogiri::XML::Node.new("figcaption", doc)
+        cap.content = caption
+        fig.add_child(cap)
+      end
+      code.parent.replace(fig)
     end
   end
 

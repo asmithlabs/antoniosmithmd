@@ -19,6 +19,7 @@ class PostReview
       check_excerpt(list)
       check_internal_links(list)
       check_images(list)
+      check_diagrams(list)
       check_length(list)
       check_category(list)
       check_title_length(list)
@@ -71,6 +72,15 @@ class PostReview
     return if missing_alt.zero?
     list << Issue.new(severity: "info", code: "missing_alt_text",
                       message: "#{missing_alt} image#{"s" if missing_alt > 1} without alt text (helps accessibility and SEO).")
+  end
+
+  def check_diagrams(list)
+    figs = Nokogiri::HTML.fragment(@post.rendered_html.to_s).css("figure.mermaid-figure")
+    uncaptioned = figs.count { _1.at_css("figcaption").nil? }
+    return if uncaptioned.zero?
+    list << Issue.new(severity: "info", code: "diagram_without_caption",
+                      message: "#{uncaptioned} diagram#{"s" if uncaptioned > 1} without a caption. Start the diagram with " \
+                               "\"%% caption: …\" so screen-reader users get a description.")
   end
 
   def check_excerpt(list)
