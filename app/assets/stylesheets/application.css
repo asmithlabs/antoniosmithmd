@@ -281,3 +281,9 @@ main.wide-graph{max-width:140ch}
 .connections .muted{font-size:.85rem}
 @media (max-width:600px){.kg-panel{position:static;width:auto;max-height:none;box-shadow:none;border-width:1px 0 0}}
 .repos .lang{color:var(--teal)}.repo-links{font-size:.88rem;margin:.2em 0 0}.repo-links a{color:var(--gold)}.repo-topic{color:var(--slate)}
+
+.mermaid-figure{margin:1.5em 0;text-align:center}
+.mermaid-figure .mermaid-out{overflow-x:auto}
+.mermaid-figure pre.mermaid-src{text-align:left}
+.mermaid-figure figcaption{font-size:.88rem;color:var(--slate);margin-top:.4em}
+.mermaid-figure .mermaid-toggle{font-size:.78rem;color:var(--slate);background:none;border:0;cursor:pointer}

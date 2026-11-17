@@ -146,8 +146,10 @@ export function mount(textarea) {
     bar.append(span)
   }
   const sel = document.createElement("select"); sel.title = "Insert block"
-  sel.innerHTML = `<option value="">+ block…</option>` + Object.entries(KINDS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("") + `<option value="details">Collapsible</option>`
-  sel.addEventListener("change", () => { const v = sel.value; sel.value = ""; if (!v) return; v === "details" ? c().insertDetails().run() : c().setCallout(v).run() })
+  sel.innerHTML = `<option value="">+ block…</option>` + Object.entries(KINDS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("") + `<option value="details">Collapsible</option><option value="mermaid">Diagram (Mermaid)</option>`
+  sel.addEventListener("change", () => { const v = sel.value; sel.value = ""; if (!v) return; v === "details" ? c().insertDetails().run()
+    : v === "mermaid" ? c().insertContent({ type: "codeBlock", attrs: { language: "mermaid" }, content: [{ type: "text", text: "%% caption: Describe the diagram for readers\nflowchart LR\n  A[Capture] --> B[Organize] --> C[Schedule]" }] }).run()
+    : c().setCallout(v).run() })
   const span = document.createElement("span"); span.className = "tt-group"; span.append(sel)
   span.append(button("unwrap", "Remove callout around selection", () => c().lift("callout").run()))
   span.append(button("Insert citation", "Insert a citation from Zotero (like Word → References → Insert Citation)", () => openCite()))

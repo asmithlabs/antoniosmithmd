@@ -63,6 +63,43 @@
   <%= render "comments/section", post: @post, tree: @tree %>
   <p class="back"><%= link_to "← all posts", posts_path %></p>
 </article>
+<% if @post.rendered_html.include?('data-type="mermaid"') %>
+<script>
+// Mermaid diagrams: load the pinned, self-hosted bundle only on posts that have one; strict mode
+// (no scripts, no click handlers); colors from the site palette; re-drawn when the theme changes.
+(() => {
+  const blocks = [...document.querySelectorAll('.prose pre[data-type="mermaid"]')]; if (!blocks.length) return
+  const s = document.createElement("script"); s.src = "/js/vendor/mermaid-11.17.2.min.js"; s.onload = draw; document.head.append(s)
+  let n = 0
+  async function draw() {
+    const v = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim()
+    window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "base", fontFamily: "inherit",
+      themeVariables: { background: v("--bg"), primaryColor: v("--bg"), primaryTextColor: v("--ink"), primaryBorderColor: v("--teal"),
+        lineColor: v("--slate"), secondaryColor: v("--bg"), tertiaryColor: v("--bg"), noteBkgColor: v("--bg"), noteBorderColor: v("--gold"),
+        textColor: v("--ink"), mainBkg: v("--bg"), clusterBkg: v("--bg"), clusterBorder: v("--rule"), edgeLabelBackground: v("--bg") } })
+    for (const pre of blocks) {
+      const fig = pre.closest("figure"), cap = fig?.querySelector("figcaption")?.textContent
+      let out = fig.querySelector(".mermaid-out")
+      try {
+        const { svg } = await window.mermaid.render(`mmd-${++n}`, pre.textContent)
+        if (!out) { out = document.createElement("div"); out.className = "mermaid-out"; pre.before(out) }
+        out.innerHTML = svg
+        const el = out.querySelector("svg"); el.setAttribute("role", "img"); if (cap) el.setAttribute("aria-label", cap)
+        el.style.maxWidth = "100%"; el.removeAttribute("height")
+        pre.hidden = true
+        if (!fig.querySelector(".mermaid-toggle")) {
+          const t = Object.assign(document.createElement("button"), { type: "button", className: "mermaid-toggle link", textContent: "source" })
+          t.addEventListener("click", () => { pre.hidden = !pre.hidden; t.textContent = pre.hidden ? "source" : "hide source" })
+          fig.append(t)
+        }
+      } catch (e) { pre.hidden = false; console.warn("mermaid:", e?.message || e) }
+    }
+  }
+  new MutationObserver(() => window.mermaid && draw()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] })
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => window.mermaid && draw())
+})()
+</script>
+<% end %>
 <script>
 (() => {
   const links = [...document.querySelectorAll(".toc a")]; if (!links.length) return
