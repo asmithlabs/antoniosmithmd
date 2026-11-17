@@ -281,3 +281,5 @@ main.wide-graph{max-width:140ch}
 .connections .muted{font-size:.85rem}
 @media (max-width:600px){.kg-panel{position:static;width:auto;max-height:none;box-shadow:none;border-width:1px 0 0}}
 .repos .lang{color:var(--teal)}.repo-links{font-size:.88rem;margin:.2em 0 0}.repo-links a{color:var(--gold)}.repo-topic{color:var(--slate)}
+/* portfolio cards (API-fed) */
+.pf-status{font-weight:600;color:var(--slate)}.pf-active{color:var(--teal)}.pf-shipped{color:var(--gold)}
