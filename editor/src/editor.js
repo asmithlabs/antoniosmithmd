@@ -58,6 +58,8 @@ const Citation = Node.create({
   addAttributes: () => ({
     key: { default: null, parseHTML: el => el.getAttribute("data-cite"), renderHTML: a => ({ "data-cite": a.key }) },
     locator: { default: "", parseHTML: el => el.getAttribute("data-locator") || "", renderHTML: a => (a.locator ? { "data-locator": a.locator } : {}) },
+    // Optional supporting passage from the source, shown to readers in the citation card.
+    evidence: { default: "", parseHTML: el => el.getAttribute("data-evidence") || "", renderHTML: a => (a.evidence ? { "data-evidence": a.evidence } : {}) },
   }),
   parseHTML: () => [{ tag: "span[data-cite]" }],
   renderHTML: ({ node, HTMLAttributes }) => ["span", mergeAttributes(HTMLAttributes, { class: "cite-chip" }), `[@${node.attrs.key}${node.attrs.locator ? ", " + node.attrs.locator : ""}]`],
@@ -67,10 +69,11 @@ const Citation = Node.create({
       const dom = document.createElement("span")
       dom.className = "cite-chip"; dom.contentEditable = "false"
       dom.dataset.cite = node.attrs.key; dom.dataset.locator = node.attrs.locator || ""
+      dom.classList.toggle("has-evidence", !!node.attrs.evidence)
       dom.addEventListener("click", e => { e.preventDefault(); editor.storage.citation.open?.(dom, getPos(), node) })
       return {
         dom,
-        update: n => { if (n.type.name !== "citation") return false; dom.dataset.cite = n.attrs.key; dom.dataset.locator = n.attrs.locator || ""; node = n; editor.storage.citation.relabel?.(); return true },
+        update: n => { if (n.type.name !== "citation") return false; dom.dataset.cite = n.attrs.key; dom.dataset.locator = n.attrs.locator || ""; dom.classList.toggle("has-evidence", !!n.attrs.evidence); node = n; editor.storage.citation.relabel?.(); return true },
       }
     }
   },
@@ -219,6 +222,7 @@ export function mount(textarea) {
   // Click a citation: page/locator, change source, remove — like Word's "Edit Citation".
   const cpop = document.createElement("div"); cpop.className = "cite-edit"; cpop.hidden = true
   cpop.innerHTML = `<p class="ce-title"></p><label>Page / locator <input name="loc" placeholder="p. 4, ch. 2, fig. 1…"></label>
+    <label>Supporting passage <span class="ce-hint">(optional — shown to readers in the citation card)</span><textarea name="ev" rows="3" maxlength="600" placeholder="Paste the sentence or finding from the source that supports this claim"></textarea></label>
     <div class="ce-actions"><button type="button" data-a="save" class="btn">Save</button><button type="button" data-a="remove">Remove citation</button><button type="button" data-a="close">Cancel</button></div>`
   wrap.append(cpop)
   let editing = null
@@ -227,17 +231,19 @@ export function mount(textarea) {
     const ref = refCache.get(node.attrs.key)
     cpop.querySelector(".ce-title").textContent = ref ? `${ref.label} — ${ref.title}` : `@${node.attrs.key} (not in Zotero)`
     cpop.querySelector("input").value = node.attrs.locator || ""
+    cpop.querySelector("textarea").value = node.attrs.evidence || ""
     const r = dom.getBoundingClientRect(), w = wrap.getBoundingClientRect()
     cpop.style.top = `${r.bottom - w.top + 6}px`; cpop.style.left = `${Math.max(0, Math.min(r.left - w.left, w.width - 340))}px`
     cpop.hidden = false; cpop.querySelector("input").focus()
   }
   cpop.addEventListener("click", e => {
     const a = e.target.dataset.a; if (!a || !editing) return
-    if (a === "save") editor.chain().focus().command(({ tr }) => { tr.setNodeMarkup(editing.pos, undefined, { ...editing.node.attrs, locator: cpop.querySelector("input").value.trim() }); return true }).run()
+    if (a === "save") editor.chain().focus().command(({ tr }) => { tr.setNodeMarkup(editing.pos, undefined, { ...editing.node.attrs, locator: cpop.querySelector("input").value.trim(), evidence: cpop.querySelector("textarea").value.replace(/\s+/g, " ").trim().slice(0, 600) }); return true }).run()
     if (a === "remove") editor.chain().focus().deleteRange({ from: editing.pos, to: editing.pos + editing.node.nodeSize }).run()
     cpop.hidden = true; editing = null
   })
   cpop.querySelector("input").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); cpop.querySelector("[data-a=save]").click() } if (e.key === "Escape") cpop.querySelector("[data-a=close]").click() })
+  cpop.querySelector("textarea").addEventListener("keydown", e => { if (e.key === "Escape") cpop.querySelector("[data-a=close]").click(); if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); cpop.querySelector("[data-a=save]").click() } })
 
   function refresh() {
     bar.querySelectorAll("button").forEach(b => b.classList.toggle("on", !!(b._isActive && b._isActive())))

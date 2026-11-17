@@ -226,6 +226,9 @@ main.wide{max-width:140ch}
 .cite-chip.missing{color:var(--red);border-color:var(--red)}
 .cite-edit{position:absolute;z-index:6;width:340px;background:var(--bg);border:1px solid var(--teal);padding:.6em 1ch;box-shadow:0 4px 16px rgba(0,0,0,.15);font-size:.88rem}
 .cite-edit .ce-title{margin:0 0 .5em;color:var(--slate)}
+.cite-edit .ce-hint{color:var(--slate);font-size:.8rem}
+.cite-chip.has-evidence{border-bottom-style:solid;border-bottom-color:var(--gold)}
+.cite-edit textarea{width:100%;font:inherit;padding:.3em 1ch;border:1px solid var(--rule);background:var(--bg);color:var(--ink);margin:.2em 0 .5em;resize:vertical}
 .cite-edit input{width:100%;font:inherit;padding:.3em 1ch;border:1px solid var(--rule);background:var(--bg);color:var(--ink);margin:.2em 0 .5em}
 .cite-edit .ce-actions{display:flex;gap:1ch;flex-wrap:wrap}
 .cite-edit button:not(.btn){font:inherit;background:none;border:1px solid var(--rule);color:var(--ink);cursor:pointer;padding:.2em 1ch}
@@ -247,6 +250,9 @@ h1 code,h2 code{color:var(--gold);font:inherit}
 .cite-card{position:absolute;z-index:20;background:var(--bg);border:1px solid var(--teal);box-shadow:0 6px 20px rgba(0,0,0,.18);padding:.6em 1.5ch;font-size:.85rem;line-height:1.45}
 .cite-card p{margin:0 0 .4em}.cite-card .cc-n{color:var(--slate);margin:0}
 .cite-card .cc-actions{margin:0;font-size:.8rem}.cite-card .cc-actions a{color:var(--gold)}
+.cite-card .cc-evidence{margin:.3em 0 .1em;padding:.1em 0 .1em 1.2ch;border-left:3px solid var(--gold);color:var(--ink);font-style:italic}
+.cite-card .cc-evidence-note{color:var(--slate);font-size:.78rem;margin:0 0 .5em}
+.cites a.cite.has-evidence{border-bottom:1px dotted var(--gold)}
 /* search */
 .searchform{display:flex;gap:1ch;margin:1em 0 1.5em}
 .searchform input{flex:1;font:inherit;padding:.4em 1ch;border:1px solid var(--rule);background:var(--bg);color:var(--ink)}
@@ -287,3 +293,5 @@ main.wide-graph{max-width:140ch}
 .mermaid-figure pre.mermaid-src{text-align:left}
 .mermaid-figure figcaption{font-size:.88rem;color:var(--slate);margin-top:.4em}
 .mermaid-figure .mermaid-toggle{font-size:.78rem;color:var(--slate);background:none;border:0;cursor:pointer}
+/* portfolio cards (API-fed) */
+.pf-status{font-weight:600;color:var(--slate)}.pf-active{color:var(--teal)}.pf-shipped{color:var(--gold)}

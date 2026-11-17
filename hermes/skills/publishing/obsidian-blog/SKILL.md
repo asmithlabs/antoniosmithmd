@@ -12,6 +12,7 @@ metadata:
 
 Moves notes from ONE Obsidian folder (`OBSIDIAN_BLOG_DIR`) to Antonio's Rails blog via its API.
 All work goes through `${HERMES_SKILL_DIR}/scripts/blog.py`. Never read or send notes from anywhere else in the vault.
+Images embedded in a note are read only from that folder or from `OBSIDIAN_ATTACHMENTS_DIR`, if it's set.
 
 ## When to use
 - "What's ready to post?", "what's in my blog folder?"
@@ -27,7 +28,9 @@ All work goes through `${HERMES_SKILL_DIR}/scripts/blog.py`. Never read or send 
    Report as a short list: title, words, blog status (`not on blog` / `draft` / `scheduled` / `published`),
    and whether the note is marked `publish: true`. Point out notes marked publish that aren't live yet.
 2. **Before sending, preview:** `blog.py preview "<note name or title>"` and tell Antonio the title, slug,
-   word count and whether it goes up as a draft or would overwrite a live post.
+   word count and whether it goes up as a draft or would overwrite a live post. If the preview lists `images`,
+   say how many will be uploaded, and pass on every `problem` (SVG, not found, over 5 MB) and the `needs_alt`
+   note as they are. **Don't write alt text yourself.** Alt text is Antonio's writing; he adds it as `![[file.png|description]]`.
 3. **Send as draft (default):** `blog.py send "<note>"` → reply with the `edit_url` so he can review in the editor.
 4. **Publish:** only if Antonio explicitly says to publish *this* note in his current message (e.g. "yes, publish it").
    Run `blog.py send "<note>" --publish`. If the API answers `this token is draft-only` / 403, say that the
@@ -63,7 +66,10 @@ excerpt, that's a `send` with the excerpt added to frontmatter — same draft/pu
 `tags: [a, b]`, `description` (meta description), `slug`, `comments: false`, `blog: false` (never send).
 ```` ```mermaid ```` fences become diagrams on the blog (start with `%% caption: …` for an accessible caption).
 Obsidian callouts (`> [!tip]`, `> [!pearl]`, `> [!tldr]`, `> [!warning]`, `> [!definition]`, foldable `> [!faq]-`),
-`==highlights==`, `[[links]]` and `%%private comments%%` (stripped) are converted by the blog. Image embeds are not uploaded.
+`==highlights==`, `[[links]]` and `%%private comments%%` (stripped) are converted by the blog. Image embeds (`![[file.png]]`, `![[file.png|alt]]`, `![alt](file.png)`; PNG/JPEG/GIF/WebP up to 5 MB) are uploaded by
+`send` and rewritten to the blog's `/uploads/` URLs. Uploads are public by URL even while the post is a draft, so tell
+Antonio before sending a note whose images he might not want public yet. `|300` is read as a size, not alt text.
+Embeds that can't be uploaded stay as a visible `[embed: …]` placeholder.
 
 ## Setup (once)
 In `~/.hermes/.env`:
