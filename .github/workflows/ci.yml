@@ -31,6 +31,8 @@ jobs:
         with: { ruby-version: '3.3', bundler-cache: true }
       - name: Prepare database and seed drafts
         run: bin/rails db:prepare && bin/rails db:seed
+      - name: Portfolio projects on the graph
+        run: bin/rails runner script/smoke/graph_portfolio.rb
       - name: Citation evidence renders escaped
         run: bin/rails runner script/smoke/citation_evidence.rb
       - name: Boot and load every page

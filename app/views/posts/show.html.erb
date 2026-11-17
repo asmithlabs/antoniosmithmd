@@ -51,9 +51,10 @@
     <p class="tags">tags: <% @post.tag_list.each do |t| %><%= link_to t, tag_path(t) %> <% end %></p>
   <% end %>
 
-  <% if @related.any? || @backlinks.any? %>
+  <% if @related.any? || @backlinks.any? || @post_projects.any? %>
     <h2 class="section">Connections <span class="tag-r">*connections*</span></h2>
     <ul class="linklist connections">
+      <% @post_projects.each do |pp| %><li><%= link_to pp.name, projects_path(anchor: pp.slug) %> <span class="muted">project · <%= pp.status %></span></li><% end %>
       <% @related.each do |r, _score, why| %><li><%= link_to r.display_title, post_path(r) %> <span class="muted"><%= why %></span></li><% end %>
       <% (@backlinks - @related.map(&:first)).each do |b| %><li><%= link_to b.display_title, post_path(b) %> <span class="muted">links here</span></li><% end %>
     </ul>
