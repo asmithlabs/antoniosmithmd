@@ -69,6 +69,8 @@ module Api
           tags: tags.uniq.reject { %w[blog publish].include?(_1) }.join(", ").presence,
           comments_enabled: fm.key?("comments") ? fm["comments"] != false : nil,
           code_links: (Array(fm["code"]) + Array(fm["repo"])).map(&:to_s).compact_blank.join("\n").presence,
+          notebook_stage: (fm["stage"] || fm["maturity"]).to_s.downcase.presence_in(Post::NOTEBOOK_STAGES.keys),
+          questions: Array(fm["questions"]).map(&:to_s).compact_blank.join("\n").presence,
           published_at: publish ? (date.present? ? Time.zone.parse(date.to_s) : Time.current) : nil
         }
       end

@@ -12,8 +12,8 @@
 
 <<<<<<< HEAD
 =======
-ActiveRecord::Schema[8.1].define(version: 2026_11_17_000300) do
->>>>>>> origin/feat/paragraph-comments
+ActiveRecord::Schema[8.1].define(version: 2026_11_17_000400) do
+>>>>>>> origin/feat/research-notebook
   create_table "api_tokens", force: :cascade do |t|
     t.string "name"
     t.string "token_digest"
@@ -109,6 +109,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_000300) do
     t.text "code_links"
     t.boolean "mastodon_replies", default: true, null: false
     t.text "mastodon_hidden"
+    t.string "notebook_stage"
+    t.text "questions"
+    t.index ["notebook_stage"], name: "index_posts_on_notebook_stage"
     t.index ["slug"], name: "index_posts_on_slug", unique: true
   end
 

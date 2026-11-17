@@ -318,5 +318,10 @@ main.wide-graph{max-width:140ch}
 .para-flash{background:color-mix(in srgb,var(--gold-l) 35%,transparent);transition:background .4s}
 .cmt-anchor{margin:0 0 .3em;font-size:.85rem}.cmt-anchor a{color:var(--slate)}
 .anchor-quote{margin:.2em 0 .4em;font-size:.88rem}.anchor-quote q{font-style:italic}
+.notebook-banner{border:1px dashed var(--gold);padding:.4em 1.5ch;margin:1em 0;font-size:.92rem}
+.notebook-banner.stage-mature{border-style:solid;border-color:var(--rule)}
+.open-questions{border:1px solid var(--rule);border-left:3px solid var(--gold);padding:.6em 2ch;margin:2em 0}
+.open-questions ul{margin:.4em 0;padding-left:2.5ch}.open-questions li::marker{content:"? ";color:var(--gold)}
+.nb-key{margin-left:1.5ch;white-space:nowrap}
 /* portfolio cards (API-fed) */
 .pf-status{font-weight:600;color:var(--slate)}.pf-active{color:var(--teal)}.pf-shipped{color:var(--gold)}

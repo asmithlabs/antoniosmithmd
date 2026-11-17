@@ -30,6 +30,10 @@
         <label>Links <small>(one per line, https only; optional "Label | URL")</small>
           <%= f.text_area :code_links, rows: 3, placeholder: "https://github.com/asmithlabs/home_lab\nLive app | https://example.org\nhttps://github.com/asmithlabs/home_lab/commit/abc1234" %></label>
         <p class="muted small">Repos, commits, pull requests, docs or a running app. Shown in a box at the end of the post.</p>
+      <fieldset><legend>Notebook</legend>
+        <label>Stage <%= f.select :notebook_stage, Post::NOTEBOOK_STAGES.to_h { |k, v| ["#{v[:icon]} #{v[:label]}", k] }, include_blank: "— finished essay —" %></label>
+        <p class="muted small">A stage puts this in the research notebook and tells readers it's a working note.</p>
+        <label>Open questions <small>(one per line)</small> <%= f.text_area :questions, rows: 3, placeholder: "Does X hold outside academic centers?" %></label>
       </fieldset>
       <fieldset><legend>Mastodon</legend>
         <% if post.mastodon_url.present? %>

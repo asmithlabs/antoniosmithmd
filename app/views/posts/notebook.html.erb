@@ -1,0 +1,29 @@
+<% content_for :title, "Notebook" %>
+<% content_for :description, "Working notes, research questions and preliminary findings from #{SITE[:name]}." %>
+<section class="hero"><p class="eyebrow">notebook</p><h1>Research notebook</h1></section>
+<p class="muted">Working notes: ideas in progress, questions I'm chasing and findings that are still preliminary.
+  They change as I learn — each note's history shows how.
+  <% Post::NOTEBOOK_STAGES.each do |_, s| %><span class="nb-key"><%= s[:icon] %> <%= s[:label].downcase %></span><% end %></p>
+
+<% if @notes.empty? %>
+  <p class="muted">No working notes yet.</p>
+<% else %>
+  <ul class="post-list notebook">
+    <% @notes.each do |p| %>
+      <li>
+        <p class="meta"><span title="<%= p.stage_info[:blurb] %>"><%= p.stage_info[:icon] %> <%= p.stage_info[:label].downcase %></span>
+          · tended <%= time_ago_in_words(p.updated_at) %> ago
+          <% if p.question_list.any? %> · <%= pluralize(p.question_list.size, "open question") %><% end %></p>
+        <h2><%= link_to p.display_title, post_path(p) %></h2>
+        <% if p.excerpt.present? %><p class="excerpt"><%= p.excerpt %></p><% end %>
+      </li>
+    <% end %>
+  </ul>
+<% end %>
+
+<% if @questions.any? %>
+  <h2 class="section" id="questions">Open questions <span class="tag-r">*questions*</span></h2>
+  <ul class="linklist open-q">
+    <% @questions.each do |q, p| %><li><%= q %> <span class="muted">— <%= link_to p.title, post_path(p) %></span></li><% end %>
+  </ul>
+<% end %>
