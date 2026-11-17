@@ -33,6 +33,8 @@ jobs:
         run: bin/rails db:prepare && bin/rails db:seed
       - name: Public history shows only live text
         run: bin/rails runner script/smoke/public_history.rb
+      - name: Portfolio projects on the graph
+        run: bin/rails runner script/smoke/graph_portfolio.rb
       - name: Citation evidence renders escaped
         run: bin/rails runner script/smoke/citation_evidence.rb
       - name: Boot and load every page
