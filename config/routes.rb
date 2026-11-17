@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   get "uploads/:name" => "uploads#show", as: :upload, format: false, constraints: { name: /[0-9a-f]{32}\.(png|jpg|gif|webp)/ }
   resources :posts, only: %i[index show], path: "blog" do
     get :history, on: :member
+    get :fediverse, on: :member
     resources :comments, only: :create do
       post :vote, on: :member
     end

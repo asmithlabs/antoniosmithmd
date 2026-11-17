@@ -34,6 +34,9 @@
       <fieldset><legend>Mastodon</legend>
         <% if post.mastodon_url.present? %>
           <p>Shared <%= time_ago_in_words(post.mastodon_posted_at) %> ago → <%= link_to "view toot ↗", post.mastodon_url, target: "_blank", rel: "noopener" %></p>
+          <label class="check"><%= f.check_box :mastodon_replies %> Show Mastodon replies under the post</label>
+          <label>Hide replies <small>(paste reply links or ids, one per line)</small>
+            <%= f.text_area :mastodon_hidden, rows: 2 %></label>
         <% else %>
           <label class="check"><%= f.check_box :share_mastodon %> Share on Mastodon when published</label>
           <small class="muted"><%= MastodonSyndication.configured? ? "Posted within ~5 min of going live, once." : "Not connected (set MASTODON_URL and MASTODON_TOKEN)." %></small>

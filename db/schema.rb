@@ -12,8 +12,8 @@
 
 <<<<<<< HEAD
 =======
-ActiveRecord::Schema[8.1].define(version: 2026_11_17_000100) do
->>>>>>> origin/feat/post-code-links
+ActiveRecord::Schema[8.1].define(version: 2026_11_17_000200) do
+>>>>>>> origin/feat/mastodon-replies
   create_table "api_tokens", force: :cascade do |t|
     t.string "name"
     t.string "token_digest"
@@ -104,6 +104,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_000100) do
     t.string "mastodon_url"
     t.datetime "mastodon_posted_at"
     t.text "code_links"
+    t.boolean "mastodon_replies", default: true, null: false
+    t.text "mastodon_hidden"
     t.index ["slug"], name: "index_posts_on_slug", unique: true
   end
 
