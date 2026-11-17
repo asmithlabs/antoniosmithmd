@@ -13,6 +13,7 @@ class PostsController < ApplicationController
     graph = KnowledgeGraph.current
     @related = graph.related(@post)
     @backlinks = graph.backlinks(@post)
+    @post_projects = graph.projects_for(@post)
     @changes = @post.revisions.noted.limit(20).to_a
     @last_public_edit = @post.revisions.shown.first&.created_at
   end
@@ -24,7 +25,6 @@ class PostsController < ApplicationController
     revs = @post.revisions.shown.limit(50).to_a
     current = PostRevision.new(title: @post.title, body: @post.body)
     @versions = revs.each_with_index.map { |r, i| [r, i.zero? ? current : revs[i - 1]] }
-    @post_projects = graph.projects_for(@post)
   end
 
   def feed = @posts = Post.published.limit(20)
