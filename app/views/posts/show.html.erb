@@ -20,7 +20,7 @@
   }.compact.to_json) %></script>
 <% end %>
 
-<article class="post">
+<article class="post" data-mode="standard">
   <header>
     <p class="meta">
       <time datetime="<%= @post.published_at.iso8601 %>"><%= @post.published_at.strftime("%B %-d, %Y") %></time>
@@ -29,6 +29,12 @@
       <% if @last_public_edit %> · <%= link_to "updated #{@last_public_edit.strftime("%B %-d, %Y")}", history_post_path(@post), title: "See how this post changed" %><% end %>
     </p>
     <h1><%= @post.display_title %></h1>
+    <p class="reading-modes" role="group" aria-label="Reading mode" hidden>
+      <span class="muted">view:</span>
+      <button type="button" data-mode="focus" title="Just the text: no citation numbers, contents or side tools">focus</button>
+      <button type="button" data-mode="standard" title="The default">standard</button>
+      <button type="button" data-mode="study" title="Everything open: sources and supporting passages under each paragraph, reasoning and collapsibles expanded">study</button>
+    </p>
     <% if @post.excerpt.present? %><p class="lede"><%= @post.excerpt %></p><% end %>
     <% if (fix = @changes.find { _1.change_kind == "correction" }) %>
       <p class="change-notice correction"><strong>Correction, <%= fix.created_at.strftime("%B %-d, %Y") %>:</strong> <%= fix.change_note %>
@@ -157,6 +163,53 @@
   </script>
   <p class="back"><%= link_to "← all posts", posts_path %></p>
 </article>
+<script>
+// Reading modes. focus = just the text; standard = as written; study = sources and reasoning laid open.
+// Remembered per browser (?mode=study in a link overrides). Without JavaScript the post shows as standard.
+(() => {
+  const art = document.querySelector("article.post"), bar = art.querySelector(".reading-modes"), prose = art.querySelector(".prose")
+  if (!bar || !prose) return
+  const MODES = ["focus", "standard", "study"]
+  const opened = new Set()
+  function studyOn() {
+    prose.querySelectorAll("details:not([open])").forEach(d => { d.open = true; opened.add(d) })
+    // Under each passage, list the sources it cites, with any supporting passage.
+    prose.querySelectorAll("p, li").forEach(el => {
+      const cites = [...el.querySelectorAll(":scope a.cite")]; if (!cites.length || el.closest("ol.references")) return
+      const box = document.createElement("div"); box.className = "study-sources"
+      cites.forEach(a => {
+        const ref = document.querySelector(a.getAttribute("href")); if (!ref) return
+        const item = document.createElement("p")
+        const n = Object.assign(document.createElement("a"), { href: a.getAttribute("href"), textContent: `[${a.textContent}] ` })
+        const body = document.createElement("span"); body.innerHTML = (ref.querySelector(".ref-body") || ref).innerHTML
+        item.append(n, body)
+        if (a.dataset.evidence) item.append(Object.assign(document.createElement("q"), { className: "study-ev", textContent: a.dataset.evidence }))
+        box.append(item)
+      })
+      if (box.childElementCount) el.after(box)
+    })
+  }
+  function studyOff() {
+    opened.forEach(d => { d.open = false }); opened.clear()
+    prose.querySelectorAll(".study-sources").forEach(b => b.remove())
+  }
+  function set(mode, remember) {
+    if (!MODES.includes(mode)) mode = "standard"
+    if (art.dataset.mode === "study" && mode !== "study") studyOff()
+    if (mode === "study" && art.dataset.mode !== "study") studyOn()
+    art.dataset.mode = mode
+    document.querySelector("main")?.classList.toggle("reading-focus", mode === "focus")
+    bar.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode))
+    if (remember) try { mode === "standard" ? localStorage.removeItem("readingMode") : localStorage.setItem("readingMode", mode) } catch {}
+  }
+  bar.hidden = false
+  bar.addEventListener("click", e => { const b = e.target.closest("button[data-mode]"); if (b) set(b.dataset.mode, true) })
+  let start = new URLSearchParams(location.search).get("mode")
+  if (!start) try { start = localStorage.getItem("readingMode") } catch {}
+  // Run after the other post scripts (citation cards, passage tools) have set up.
+  requestAnimationFrame(() => set(start || "standard", false))
+})()
+</script>
 <script>
 (() => {
   const links = [...document.querySelectorAll(".toc a")]; if (!links.length) return

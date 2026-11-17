@@ -323,5 +323,19 @@ main.wide-graph{max-width:140ch}
 .open-questions{border:1px solid var(--rule);border-left:3px solid var(--gold);padding:.6em 2ch;margin:2em 0}
 .open-questions ul{margin:.4em 0;padding-left:2.5ch}.open-questions li::marker{content:"? ";color:var(--gold)}
 .nb-key{margin-left:1.5ch;white-space:nowrap}
+/* reading modes */
+.reading-modes{font-size:.85rem;margin:.2em 0 0}
+.reading-modes button{font:inherit;background:none;border:1px solid transparent;color:var(--slate);cursor:pointer;padding:0 .8ch}
+.reading-modes button[aria-pressed=true]{border-color:var(--teal);color:var(--teal)}
+.reading-modes button:focus-visible{outline:2px solid var(--teal)}
+article[data-mode=focus] .prose sup.cites,article[data-mode=focus] .prose .cite-missing,
+article[data-mode=focus] .toc,article[data-mode=focus] .para-tools{display:none}
+article[data-mode=focus] .prose{font-size:1.06em;line-height:1.75}
+main.reading-focus.with-toc .post-grid{display:block}
+article[data-mode=study] .study-sources{border-left:2px solid var(--rule);margin:-.3em 0 1em;padding:.1em 0 .1em 1.5ch;font-size:.82rem;color:var(--slate)}
+article[data-mode=study] .study-sources p{margin:.15em 0}
+article[data-mode=study] .study-sources .study-ev{display:block;font-style:italic;color:var(--ink);margin:.1em 0 .3em 2ch}
+article[data-mode=study] .prose sup.cites{font-size:.85em}
+@media print{.reading-modes{display:none}}
 /* portfolio cards (API-fed) */
 .pf-status{font-weight:600;color:var(--slate)}.pf-active{color:var(--teal)}.pf-shipped{color:var(--gold)}
