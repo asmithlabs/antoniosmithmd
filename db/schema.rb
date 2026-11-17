@@ -46,6 +46,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_17_000100) do
     t.index ["external_id"], name: "index_passkeys_on_external_id", unique: true
   end
 
+  create_table "portfolio_projects", force: :cascade do |t|
+    t.string "slug", null: false
+    t.string "name", null: false
+    t.text "summary"
+    t.string "status", default: "active", null: false
+    t.string "stage"
+    t.string "domain"
+    t.string "stack"
+    t.string "url"
+    t.string "repo_url"
+    t.integer "position", default: 0, null: false
+    t.boolean "hidden", default: false, null: false
+    t.datetime "last_activity_at"
+    t.string "source"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_portfolio_projects_on_slug", unique: true
+  end
+
   create_table "post_revisions", force: :cascade do |t|
     t.integer "post_id", null: false
     t.string "title"

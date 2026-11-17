@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   get "projects" => "pages#projects"
   get "search" => "search#index"
   get "graph" => "graph#show"
+  get "uploads/:name" => "uploads#show", as: :upload, format: false, constraints: { name: /[0-9a-f]{32}\.(png|jpg|gif|webp)/ }
   resources :posts, only: %i[index show], path: "blog" do
     resources :comments, only: :create do
       post :vote, on: :member
@@ -21,10 +22,13 @@ Rails.application.routes.draw do
       end
       resources :comments, only: %i[index update]
       resources :references, only: :index
+      resources :portfolio_projects, only: %i[index show update destroy], path: "portfolio"
+      resources :uploads, only: :create
     end
   end
   namespace :admin do
     resources :api_tokens, only: %i[index create destroy]
+    resources :uploads, only: :create
     resources :references, only: :index do
       post :sync, on: :collection
     end
@@ -46,5 +50,6 @@ Rails.application.routes.draw do
       end
     end
     resources :comments, only: %i[index update destroy]
+    resources :portfolio_projects, only: %i[index update destroy], path: "portfolio"
   end
 end
