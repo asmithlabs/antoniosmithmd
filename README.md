@@ -71,6 +71,23 @@ They can't publish, edit live posts, or moderate. Posts show their source in adm
     POST   /api/v1/uploads                      # multipart, field "file" -> {url, absolute_url}
     Header: Authorization: Bearer asm_...
 
+## Portfolio cards (API)
+The **Portfolio** section of `/projects` (and the first six cards on the home page) is fed by hermes-ops with
+a **Portfolio only** token. That token can't touch posts or comments, and drafts-only tokens can't touch the
+portfolio (every API controller lists the scopes it accepts; anything not listed gets 403).
+
+    GET    /api/v1/portfolio                     # all cards, including hidden ones
+    GET    /api/v1/portfolio/:slug
+    PUT    /api/v1/portfolio/:slug               # upsert: {name, summary, status, stage, domain, stack[] | "a, b",
+                                                 #          url, repo_url, position, last_activity_at}
+    DELETE /api/v1/portfolio/:slug
+
+- Everything sent is public. The sender sends only de-identified text it was told is public; this site
+  does no scrubbing. Fields are plain text and always escaped on render.
+- `status` is one of `idea active paused shipped archived`; archived cards aren't listed. Links must be https.
+  `slug` is lowercase letters, digits and dashes.
+- **Admin → portfolio** hides/shows or deletes a card. `hidden` can't be set through the API, so a hidden card
+  stays hidden through later syncs. A deleted card comes back on the next sync unless it is removed at the source.
 ## Images
 Upload from the editor's **upload** button, or `POST /api/v1/uploads` (any token, drafts-only included):
 
