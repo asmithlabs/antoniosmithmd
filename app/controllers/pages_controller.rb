@@ -8,6 +8,7 @@ class PagesController < ApplicationController
 
   def projects
     @portfolio = PortfolioProject.listed.ordered
+    @graph = KnowledgeGraph.current
     @projects = Post.published.where(category: "projects")
     @repos = GithubProjects.all
   end

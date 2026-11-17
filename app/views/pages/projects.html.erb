@@ -20,6 +20,11 @@
           <% pp.stack_list.first(6).each do |t| %> <span class="repo-topic">*<%= t %>*</span><% end %>
         </p>
       <% end %>
+      <% about = @graph.posts_about(pp) %>
+      <% if about.any? %>
+        <p class="pf-writing muted">written about in: <%= safe_join(about.first(4).map { link_to(_1.display_title, post_path(_1)) }, ", ") %>
+          · <%= link_to "graph", graph_path(anchor: "pf:#{pp.slug}") %></p>
+      <% end %>
     </li>
   <% end %>
   </ul>
