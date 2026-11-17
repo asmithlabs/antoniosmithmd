@@ -33,6 +33,8 @@ jobs:
         run: bin/rails db:prepare && bin/rails db:seed
       - name: Portfolio projects on the graph
         run: bin/rails runner script/smoke/graph_portfolio.rb
+      - name: Citation evidence renders escaped
+        run: bin/rails runner script/smoke/citation_evidence.rb
       - name: Boot and load every page
         run: |
           bin/rails runner 'Post.first.update!(published_at: 1.hour.ago)'
@@ -62,6 +64,21 @@ jobs:
           echo "draft token on portfolio $code"; [ "$code" = 403 ] || exit 1
           code=$(api "$draft" http://localhost:3000/api/v1/posts)
           echo "draft token on posts $code"; [ "$code" = 200 ] || exit 1
+      - name: Image upload accepts a PNG and refuses an SVG
+        run: |
+          token=$(bin/rails runner 'puts ApiToken.create!(name: "ci", scope: "draft").plaintext' 2>/dev/null | tail -n1)
+          printf 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAwS2OUAAAAABJRU5ErkJggg==' | base64 -d > /tmp/one.png
+          printf '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>' > /tmp/bad.svg
+          url=$(curl -s -H "Authorization: Bearer $token" -F file=@/tmp/one.png http://localhost:3000/api/v1/uploads | ruby -rjson -e 'puts JSON.parse(STDIN.read)["url"]')
+          echo "uploaded: $url"; [ -n "$url" ] || exit 1
+          type=$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "http://localhost:3000$url")
+          echo "fetch: $type"; [ "$type" = "200 image/png" ] || exit 1
+          code=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $token" -F 'file=@/tmp/bad.svg;type=image/png;filename=x.png' http://localhost:3000/api/v1/uploads)
+          echo "svg dressed as png: $code"; [ "$code" = 422 ] || exit 1
+          code=$(curl -s -o /dev/null -w '%{http_code}' -F file=@/tmp/one.png http://localhost:3000/api/v1/uploads)
+          echo "no token: $code"; [ "$code" = 401 ] || exit 1
+          code=$(curl -s -o /dev/null -w '%{http_code}' -F file=@/tmp/one.png http://localhost:3000/admin/uploads)
+          echo "admin endpoint, signed out: $code"; [ "$code" = 422 ] || [ "$code" = 302 ] || exit 1
 
   docker:
     runs-on: ubuntu-latest
