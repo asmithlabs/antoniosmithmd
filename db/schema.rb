@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_16_230000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_17_000400) do
   create_table "api_tokens", force: :cascade do |t|
     t.string "name"
     t.string "token_digest"
@@ -31,7 +31,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_230000) do
     t.string "ip_hash"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "anchor"
+    t.string "anchor_text"
     t.index ["parent_id"], name: "index_comments_on_parent_id"
+    t.index ["post_id", "anchor"], name: "index_comments_on_post_id_and_anchor"
     t.index ["post_id"], name: "index_comments_on_post_id"
   end
 
@@ -73,6 +76,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_230000) do
     t.text "excerpt"
     t.string "editor"
     t.datetime "created_at", null: false
+    t.boolean "public", default: false, null: false
+    t.string "change_kind"
+    t.text "change_note"
+    t.index ["post_id", "public", "created_at"], name: "index_post_revisions_on_post_id_and_public_and_created_at"
     t.index ["post_id"], name: "index_post_revisions_on_post_id"
   end
 
@@ -96,6 +103,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_16_230000) do
     t.boolean "share_mastodon", default: true, null: false
     t.string "mastodon_url"
     t.datetime "mastodon_posted_at"
+    t.text "code_links"
+    t.boolean "mastodon_replies", default: true, null: false
+    t.text "mastodon_hidden"
+    t.string "notebook_stage"
+    t.text "questions"
+    t.index ["notebook_stage"], name: "index_posts_on_notebook_stage"
     t.index ["slug"], name: "index_posts_on_slug", unique: true
   end
 

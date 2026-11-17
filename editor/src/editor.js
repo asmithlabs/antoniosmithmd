@@ -31,12 +31,26 @@ const Summary = Node.create({ name: "detailsSummary", content: "text*", defining
   parseHTML: () => [{ tag: "summary" }], renderHTML: () => ["summary", 0] })
 const DetailsBody = Node.create({ name: "detailsBody", content: "block+", defining: true,
   parseHTML: () => [{ tag: "div.details-body" }], renderHTML: () => ["div", { class: "details-body" }, 0] })
+// kind "reasoning" = "Follow the reasoning": a collapsed block (for readers) with evidence,
+// assumptions and competing explanations. Stored as <details class="reasoning" data-type="reasoning">.
+export const REASONING_SECTIONS = ["Conclusion", "Evidence", "Assumptions", "Other explanations I considered", "What would change my mind", "Confidence"]
 const Details = Node.create({ name: "details", group: "block", content: "detailsSummary detailsBody", defining: true,
-  parseHTML: () => [{ tag: "details" }], renderHTML: () => ["details", { open: "open" }, 0],
+  addAttributes: () => ({ kind: { default: null, parseHTML: el => (el.classList.contains("reasoning") || el.getAttribute("data-type") === "reasoning" ? "reasoning" : null),
+    renderHTML: a => (a.kind === "reasoning" ? { class: "reasoning", "data-type": "reasoning" } : {}) } }),
+  parseHTML: () => [{ tag: "details" }], renderHTML: ({ HTMLAttributes }) => ["details", mergeAttributes(HTMLAttributes, { open: "open" }), 0],
   addCommands() {
-    return { insertDetails: () => ({ commands }) => commands.insertContent({ type: "details", content: [
-      { type: "detailsSummary", content: [{ type: "text", text: "Click to expand" }] },
-      { type: "detailsBody", content: [{ type: "paragraph" }] }] }) }
+    return {
+      insertDetails: () => ({ commands }) => commands.insertContent({ type: "details", content: [
+        { type: "detailsSummary", content: [{ type: "text", text: "Click to expand" }] },
+        { type: "detailsBody", content: [{ type: "paragraph" }] }] }),
+      insertReasoning: () => ({ commands }) => commands.insertContent({ type: "details", attrs: { kind: "reasoning" }, content: [
+        { type: "detailsSummary", content: [{ type: "text", text: "Follow the reasoning" }] },
+        { type: "detailsBody", content: REASONING_SECTIONS.flatMap(h => [
+          { type: "heading", attrs: { level: 4 }, content: [{ type: "text", text: h }] },
+          h === "Evidence" || h === "Assumptions" || h === "Other explanations I considered"
+            ? { type: "bulletList", content: [{ type: "listItem", content: [{ type: "paragraph" }] }] }
+            : { type: "paragraph" }]) }] }),
+    }
   },
 })
 
@@ -167,8 +181,12 @@ export function mount(textarea) {
     bar.append(span)
   }
   const sel = document.createElement("select"); sel.title = "Insert block"
-  sel.innerHTML = `<option value="">+ block…</option>` + Object.entries(KINDS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("") + `<option value="details">Collapsible</option>`
-  sel.addEventListener("change", () => { const v = sel.value; sel.value = ""; if (!v) return; v === "details" ? c().insertDetails().run() : c().setCallout(v).run() })
+  sel.innerHTML = `<option value="">+ block…</option>` + Object.entries(KINDS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("")
+    + `<option value="details">Collapsible</option><option value="reasoning">Follow the reasoning</option><option value="mermaid">Diagram (Mermaid)</option>`
+  sel.addEventListener("change", () => { const v = sel.value; sel.value = ""; if (!v) return; v === "details" ? c().insertDetails().run()
+    : v === "reasoning" ? c().insertReasoning().run()
+    : v === "mermaid" ? c().insertContent({ type: "codeBlock", attrs: { language: "mermaid" }, content: [{ type: "text", text: "%% caption: Describe the diagram for readers\nflowchart LR\n  A[Capture] --> B[Organize] --> C[Schedule]" }] }).run()
+    : c().setCallout(v).run() })
   const span = document.createElement("span"); span.className = "tt-group"; span.append(sel)
   span.append(button("unwrap", "Remove callout around selection", () => c().lift("callout").run()))
   span.append(button("Insert citation", "Insert a citation from Zotero (like Word → References → Insert Citation)", () => openCite()))

@@ -20,15 +20,33 @@
   }.compact.to_json) %></script>
 <% end %>
 
-<article class="post">
+<article class="post" data-mode="standard">
   <header>
     <p class="meta">
       <time datetime="<%= @post.published_at.iso8601 %>"><%= @post.published_at.strftime("%B %-d, %Y") %></time>
       · <%= @post.reading_minutes %> min read
       <% if @post.category %> · <%= link_to @post.category_name, category_path(@post.category) %><% end %>
+      <% if @last_public_edit %> · <%= link_to "updated #{@last_public_edit.strftime("%B %-d, %Y")}", history_post_path(@post), title: "See how this post changed" %><% end %>
     </p>
     <h1><%= @post.display_title %></h1>
+    <p class="reading-modes" role="group" aria-label="Reading mode" hidden>
+      <span class="muted">view:</span>
+      <button type="button" data-mode="focus" title="Just the text: no citation numbers, contents or side tools">focus</button>
+      <button type="button" data-mode="standard" title="The default">standard</button>
+      <button type="button" data-mode="study" title="Everything open: sources and supporting passages under each paragraph, reasoning and collapsibles expanded">study</button>
+    </p>
     <% if @post.excerpt.present? %><p class="lede"><%= @post.excerpt %></p><% end %>
+    <% if (fix = @changes.find { _1.change_kind == "correction" }) %>
+      <p class="change-notice correction"><strong>Correction, <%= fix.created_at.strftime("%B %-d, %Y") %>:</strong> <%= fix.change_note %>
+        <%= link_to "history", history_post_path(@post, anchor: "v#{fix.id}") %></p>
+  <% end %>
+
+    <% if (st = @post.stage_info) %>
+      <p class="notebook-banner stage-<%= @post.notebook_stage %>"><span aria-hidden="true"><%= st[:icon] %></span>
+        <strong>Working note · <%= st[:label].downcase %></strong> — <%= st[:blurb] %>.
+        Last tended <time datetime="<%= @post.updated_at.iso8601 %>"><%= @post.updated_at.strftime("%B %-d, %Y") %></time>.
+        <%= link_to "notebook", notebook_path %></p>
+    <% end %>
   </header>
 
   <div class="post-grid">
@@ -47,6 +65,40 @@
   <div class="prose"><%= @post.rendered_html %></div>
   </div>
 
+  <% if @changes.any? %>
+    <h2 class="section" id="changes">Changes <span class="tag-r">*changes*</span></h2>
+    <ul class="linklist changes">
+      <% @changes.each do |c| %>
+        <li><time datetime="<%= c.created_at.iso8601 %>"><%= c.created_at.strftime("%b %-d, %Y") %></time>
+          <span class="change-kind <%= c.change_kind %>"><%= c.kind_label %></span> — <%= c.change_note %>
+          <%= link_to "diff", history_post_path(@post, anchor: "v#{c.id}"), class: "muted" %></li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <% if (links = @post.code_link_list).any? %>
+    <% repos = GithubProjects.cached.index_by { _1.full_name.downcase } %>
+    <aside class="code-links" aria-labelledby="code-links-h">
+      <p class="toc-head" id="code-links-h"><span>CODE &amp; PROJECT</span><span class="tagname">*code*</span></p>
+      <ul>
+        <% links.each do |l| %>
+          <% live = l.kind == "repo" && repos[l.repo.to_s.downcase] %>
+          <li><span class="cl-kind <%= l.kind %>"><%= l.kind_label %></span>
+            <%= link_to l.label, l.url, rel: "noopener", target: "_blank" %>
+            <% if live %><span class="muted"><%= [live.language, ("★ #{live.stars}" if live.stars.to_i.positive?), ("updated #{time_ago_in_words(live.pushed_at)} ago" if live.pushed_at)].compact.join(" · ") %></span><% end %>
+          </li>
+        <% end %>
+      </ul>
+  <% end %>
+
+  <% if (qs = @post.question_list).any? %>
+    <aside class="open-questions" aria-labelledby="oq-h">
+      <p class="toc-head" id="oq-h"><span>OPEN QUESTIONS</span><span class="tagname">*questions*</span></p>
+      <ul><% qs.each do |q| %><li><%= q %></li><% end %></ul>
+      <% if @post.comments_open? %><p class="muted small">Have evidence or a lead? <a href="#comments">Leave a comment</a>.</p><% end %>
+    </aside>
+  <% end %>
+
   <% if @post.tag_list.any? %>
     <p class="tags">tags: <% @post.tag_list.each do |t| %><%= link_to t, tag_path(t) %> <% end %></p>
   <% end %>
@@ -61,9 +113,140 @@
     <p class="muted"><%= link_to "see it on the graph →", graph_path(anchor: "p:#{@post.slug}") %></p>
   <% end %>
 
+  <% if @post.mastodon_url.present? && @post.mastodon_replies? %>
+    <section class="fediverse" aria-labelledby="fedi-h">
+      <h2 class="section" id="fedi-h">Replies on Mastodon <span class="tag-r">*fediverse*</span></h2>
+      <p class="muted">This post was shared on Mastodon. Public replies there show up here;
+        <%= link_to "reply on Mastodon ↗", @post.mastodon_url, rel: "noopener", target: "_blank" %> to join in.</p>
+      <div id="fedi-replies" data-src="<%= fediverse_post_path(@post) %>"><p class="muted">Loading replies…</p></div>
+      <script>
+        (() => { const box = document.getElementById("fedi-replies")
+          fetch(box.dataset.src, { headers: { Accept: "text/html" } }).then(r => r.ok ? r.text() : Promise.reject())
+            .then(html => { box.innerHTML = html }).catch(() => { box.innerHTML = '<p class="muted">Couldn\'t load replies right now.</p>' }) })()
+      </script>
+    </section>
+  <% end %>
+
   <%= render "comments/section", post: @post, tree: @tree %>
+  <% counts = (@tree[nil] || []).select(&:anchored?).group_by(&:anchor).transform_values { |cs| { n: cs.size, first: "c#{cs.first.id}" } } %>
+  <script type="application/json" id="para-data"><%= raw({ counts:, open: @post.comments_open? }.to_json.gsub("</", "<\\/")) %></script>
+  <script>
+  // Paragraph-level discussion: a ¶ button on each passage (with a count when it has comments).
+  (() => {
+    const data = JSON.parse(document.getElementById("para-data").textContent)
+    const form = document.querySelector("#comments > .cform"), field = form?.querySelector(".anchor-field"), quote = form?.querySelector(".anchor-quote")
+    const flash = el => { el.classList.add("para-flash"); setTimeout(() => el.classList.remove("para-flash"), 1600) }
+    document.querySelectorAll(".prose [id^='para-']").forEach(p => {
+      const c = data.counts[p.id]; if (!c && !(data.open && field)) return
+      const text = p.textContent.trim()
+      const tools = document.createElement("span"); tools.className = "para-tools" + (c ? " has" : "")
+      if (c) {
+        const b = Object.assign(document.createElement("a"), { href: "#" + c.first, className: "para-count", textContent: `¶ ${c.n}` })
+        b.setAttribute("aria-label", `${c.n} comment${c.n === 1 ? "" : "s"} on this passage`); tools.append(b)
+      }
+      if (data.open && field) {
+        const add = Object.assign(document.createElement("button"), { type: "button", className: "para-add", textContent: c ? "+" : "¶ +" })
+        add.setAttribute("aria-label", "Comment on this passage"); add.title = "Comment on this passage"
+        add.addEventListener("click", () => {
+          field.value = p.id; quote.hidden = false
+          quote.querySelector("q").textContent = text.length > 160 ? text.slice(0, 160) + "…" : text
+          form.scrollIntoView({ behavior: "smooth", block: "center" }); form.querySelector("textarea").focus({ preventScroll: true })
+        })
+        tools.append(add)
+      }
+      p.append(" ", tools)
+    })
+    quote?.querySelector(".anchor-clear").addEventListener("click", () => { field.value = ""; quote.hidden = true })
+    document.addEventListener("click", e => { const a = e.target.closest("a.to-passage"); if (a) { const t = document.querySelector(a.getAttribute("href")); if (t) setTimeout(() => flash(t), 50) } })
+    if (location.hash.startsWith("#para-")) { const t = document.querySelector(location.hash); if (t) flash(t) }
+  })()
+  </script>
   <p class="back"><%= link_to "← all posts", posts_path %></p>
 </article>
+<% if @post.rendered_html.include?('data-type="mermaid"') %>
+<script>
+// Mermaid diagrams: load the pinned, self-hosted bundle only on posts that have one; strict mode
+// (no scripts, no click handlers); colors from the site palette; re-drawn when the theme changes.
+(() => {
+  const blocks = [...document.querySelectorAll('.prose pre[data-type="mermaid"]')]; if (!blocks.length) return
+  const s = document.createElement("script"); s.src = "/js/vendor/mermaid-11.17.2.min.js"; s.onload = draw; document.head.append(s)
+  let n = 0
+  async function draw() {
+    const v = k => getComputedStyle(document.documentElement).getPropertyValue(k).trim()
+    window.mermaid.initialize({ startOnLoad: false, securityLevel: "strict", theme: "base", fontFamily: "inherit",
+      themeVariables: { background: v("--bg"), primaryColor: v("--bg"), primaryTextColor: v("--ink"), primaryBorderColor: v("--teal"),
+        lineColor: v("--slate"), secondaryColor: v("--bg"), tertiaryColor: v("--bg"), noteBkgColor: v("--bg"), noteBorderColor: v("--gold"),
+        textColor: v("--ink"), mainBkg: v("--bg"), clusterBkg: v("--bg"), clusterBorder: v("--rule"), edgeLabelBackground: v("--bg") } })
+    for (const pre of blocks) {
+      const fig = pre.closest("figure"), cap = fig?.querySelector("figcaption")?.textContent
+      let out = fig.querySelector(".mermaid-out")
+      try {
+        const { svg } = await window.mermaid.render(`mmd-${++n}`, pre.textContent)
+        if (!out) { out = document.createElement("div"); out.className = "mermaid-out"; pre.before(out) }
+        out.innerHTML = svg
+        const el = out.querySelector("svg"); el.setAttribute("role", "img"); if (cap) el.setAttribute("aria-label", cap)
+        el.style.maxWidth = "100%"; el.removeAttribute("height")
+        pre.hidden = true
+        if (!fig.querySelector(".mermaid-toggle")) {
+          const t = Object.assign(document.createElement("button"), { type: "button", className: "mermaid-toggle link", textContent: "source" })
+          t.addEventListener("click", () => { pre.hidden = !pre.hidden; t.textContent = pre.hidden ? "source" : "hide source" })
+          fig.append(t)
+        }
+      } catch (e) { pre.hidden = false; console.warn("mermaid:", e?.message || e) }
+    }
+  }
+  new MutationObserver(() => window.mermaid && draw()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] })
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => window.mermaid && draw())
+})()
+</script>
+<% end %>
+<script>
+// Reading modes. focus = just the text; standard = as written; study = sources and reasoning laid open.
+// Remembered per browser (?mode=study in a link overrides). Without JavaScript the post shows as standard.
+(() => {
+  const art = document.querySelector("article.post"), bar = art.querySelector(".reading-modes"), prose = art.querySelector(".prose")
+  if (!bar || !prose) return
+  const MODES = ["focus", "standard", "study"]
+  const opened = new Set()
+  function studyOn() {
+    prose.querySelectorAll("details:not([open])").forEach(d => { d.open = true; opened.add(d) })
+    // Under each passage, list the sources it cites, with any supporting passage.
+    prose.querySelectorAll("p, li").forEach(el => {
+      const cites = [...el.querySelectorAll(":scope a.cite")]; if (!cites.length || el.closest("ol.references")) return
+      const box = document.createElement("div"); box.className = "study-sources"
+      cites.forEach(a => {
+        const ref = document.querySelector(a.getAttribute("href")); if (!ref) return
+        const item = document.createElement("p")
+        const n = Object.assign(document.createElement("a"), { href: a.getAttribute("href"), textContent: `[${a.textContent}] ` })
+        const body = document.createElement("span"); body.innerHTML = (ref.querySelector(".ref-body") || ref).innerHTML
+        item.append(n, body)
+        if (a.dataset.evidence) item.append(Object.assign(document.createElement("q"), { className: "study-ev", textContent: a.dataset.evidence }))
+        box.append(item)
+      })
+      if (box.childElementCount) el.after(box)
+    })
+  }
+  function studyOff() {
+    opened.forEach(d => { d.open = false }); opened.clear()
+    prose.querySelectorAll(".study-sources").forEach(b => b.remove())
+  }
+  function set(mode, remember) {
+    if (!MODES.includes(mode)) mode = "standard"
+    if (art.dataset.mode === "study" && mode !== "study") studyOff()
+    if (mode === "study" && art.dataset.mode !== "study") studyOn()
+    art.dataset.mode = mode
+    document.querySelector("main")?.classList.toggle("reading-focus", mode === "focus")
+    bar.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode))
+    if (remember) try { mode === "standard" ? localStorage.removeItem("readingMode") : localStorage.setItem("readingMode", mode) } catch {}
+  }
+  bar.hidden = false
+  bar.addEventListener("click", e => { const b = e.target.closest("button[data-mode]"); if (b) set(b.dataset.mode, true) })
+  let start = new URLSearchParams(location.search).get("mode")
+  if (!start) try { start = localStorage.getItem("readingMode") } catch {}
+  // Run after the other post scripts (citation cards, passage tools) have set up.
+  requestAnimationFrame(() => set(start || "standard", false))
+})()
+</script>
 <script>
 (() => {
   const links = [...document.querySelectorAll(".toc a")]; if (!links.length) return

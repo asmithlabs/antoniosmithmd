@@ -17,7 +17,8 @@ class Post < ApplicationRecord
   has_many :revisions, -> { order(created_at: :desc) }, class_name: "PostRevision", dependent: :delete_all
 
   attr_accessor :revision_editor   # who made this change ("admin", "api:Hermes", "obsidian")
-  before_update :snapshot_revision, if: -> { will_save_change_to_body? || will_save_change_to_title_html? || will_save_change_to_title? || will_save_change_to_excerpt? }
+  attr_accessor :change_kind, :change_note   # optional public note about this edit (admin form)
+  before_update :snapshot_revision, if: -> { will_save_change_to_body? || will_save_change_to_title_html? || will_save_change_to_title? || will_save_change_to_excerpt? || change_note.present? }
   after_save :reindex_search!
   after_destroy { self.class.connection.exec_delete("DELETE FROM post_search WHERE rowid = ?", "fts", [id]) }
 
@@ -47,6 +48,9 @@ class Post < ApplicationRecord
   TITLE_TAGS = %w[strong em u s code a mark sup sub].freeze
   before_validation :normalize_title
   before_validation { self.category = category.presence; self.tags = tags.presence; self.excerpt = excerpt.presence }
+  before_validation { self.code_links = code_links.to_s.lines.map(&:strip).reject(&:blank?).join("\n").presence }
+  validate :code_links_valid
+  before_validation { self.notebook_stage = notebook_stage.presence; self.questions = question_list.map { _1.first(300) }.join("\n").presence }
   before_validation { self.slug = (slug.presence || title).to_s.parameterize }
 
   # Rich title (bold/italic/code/links). `title` stays plain text for <title>, SEO, RSS, URLs.
@@ -67,6 +71,8 @@ class Post < ApplicationRecord
   def plain_text = Nokogiri::HTML.fragment(rendered_html).xpath(".//text()").map(&:text).join(" ").squish
   def reading_minutes = [(plain_text.split.size / 220.0).ceil, 1].max
   def description = excerpt.presence || plain_text.truncate(155)
+  def code_link_list = (CodeLink.parse_all(code_links) rescue [])
+
   def updated_or_published = [updated_at, published_at].compact.max
 
   # Comments
@@ -77,6 +83,20 @@ class Post < ApplicationRecord
   def rendered_html = processed.first
   def toc = processed.last
   def cited_references = (processed; @cited || [])
+
+  # { "para-1a2b3c4d" => "passage text" } for every passage readers can comment on.
+  def paragraphs = (processed; @paragraphs || {})
+  # Research notebook. A stage marks the post as a working note: ideas are preliminary and expected to change.
+  NOTEBOOK_STAGES = {
+    "seedling" => { label: "Seedling", icon: "🌱", blurb: "an early idea — rough, incomplete, possibly wrong" },
+    "growing"  => { label: "Growing",  icon: "🌿", blurb: "taking shape — the argument is there, the evidence is still coming in" },
+    "mature"   => { label: "Mature",   icon: "🌳", blurb: "fairly settled — I still revise it when I learn more" },
+  }.freeze
+  validates :notebook_stage, inclusion: { in: NOTEBOOK_STAGES.keys }, allow_nil: true
+  scope :notebook, -> { published.where.not(notebook_stage: nil).reorder(updated_at: :desc) }
+  def notebook? = notebook_stage.present?
+  def stage_info = NOTEBOOK_STAGES[notebook_stage]
+  def question_list = questions.to_s.lines.map(&:strip).reject(&:blank?).first(12)
   def citation_keys = Reference.keys_in(body)
 
   # Pull any newly cited papers from Zotero when a post is saved (best effort).
@@ -93,9 +113,19 @@ class Post < ApplicationRecord
 
   private
 
+  def code_links_valid
+    lines = code_links.to_s.lines.reject(&:blank?)
+    errors.add(:code_links, "can have at most #{CodeLink::MAX} links") if lines.size > CodeLink::MAX
+    lines.each { CodeLink.parse(_1) rescue errors.add(:code_links, $!.message) }
+  end
+
   def snapshot_revision
+    was_live = published_at_was.present? && published_at_was <= Time.current
+    note = change_note.to_s.squish.first(500).presence
     revisions.create!(title: title_was, title_html: title_html_was, body: body_was, excerpt: excerpt_was,
-                      editor: revision_editor.presence || "admin")
+                      editor: revision_editor.presence || "admin", public: was_live,
+                      change_kind: (note && PostRevision::KINDS.key?(change_kind) ? change_kind : (note ? "update" : nil)),
+                      change_note: (was_live ? note : nil))
     revisions.offset(100).delete_all if revisions.count > 100   # keep the last 100 versions
   end
 
@@ -111,6 +141,7 @@ class Post < ApplicationRecord
       raw = body.to_s.lstrip.start_with?("<") ? body.to_s : markdown(body.to_s)
       clean = ActionController::Base.helpers.sanitize(raw, tags: ALLOWED_TAGS, attributes: ALLOWED_ATTRS)
       doc = Nokogiri::HTML.fragment(clean)
+      mermaid_blocks(doc)
       @cited = apply_citations(doc)
       toc, used = [], Hash.new(0)
       doc.css("h2, h3").each do |h|
@@ -122,6 +153,8 @@ class Post < ApplicationRecord
         toc << { id:, text: plain, level: h.name == "h2" ? 2 : 3 }
       end
       doc.css("a[href^='http']").each { |a| a["rel"] = "noopener"; a["target"] = "_blank" }
+      tidy_reasoning(doc)
+      @paragraphs = anchor_paragraphs(doc)
       [doc.to_html.html_safe, toc]
     end
   end
@@ -174,6 +207,66 @@ class Post < ApplicationRecord
     end
     doc.add_child(%(<h2>References</h2><ol class="references">#{items.join}</ol>))
     order.map { refs[_1] }
+  end
+
+  # "Follow the reasoning" blocks: collapsed for readers, and template sections left empty are dropped.
+  def tidy_reasoning(doc)
+    doc.css("details.reasoning, details[data-type=reasoning]").each do |d|
+      d.remove_attribute("open")
+      d["class"] = "reasoning"; d["data-type"] = "reasoning"
+      body = d.at_css("> div.details-body") || d
+      body.css("> h4").each do |h|
+        section = []
+        n = h.next_element
+        while n && n.name != "h4"
+          section << n
+          n = n.next_element
+        end
+        next if section.any? { _1.text.strip.present? || _1.at_css("img") }
+        section.each(&:remove)
+        h.remove
+      end
+      d.remove if body.text.strip.empty? && !body.at_css("img")
+    end
+  end
+
+  # Give each passage (paragraph, or list item without paragraphs) a stable id from its text, so
+  # comments can point at it. Editing a passage changes its id; comments on the old text keep a quote.
+  def anchor_paragraphs(doc)
+    seen = Hash.new(0)
+    doc.css("p, li").each_with_object({}) do |el, out|
+      next if el.name == "li" && el.at_css("p")
+      next if el.ancestors("ol.references, summary, table").any? || el["id"].present?
+      text = el.text.squish
+      next if text.length < 20
+      base = "para-#{Digest::SHA1.hexdigest(text)[0, 8]}"
+      id = seen[base].zero? ? base : "#{base}-#{seen[base]}"
+      seen[base] += 1
+      el["id"] = id
+      out[id] = text
+    end
+  end
+
+  # ```mermaid fences (editor code block with language "mermaid", Markdown/Obsidian fences) become a
+  # figure the page renders as a diagram. The source stays as readable text without JavaScript and in RSS.
+  # A first line "%% caption: …" becomes the figure caption and the diagram's accessible name.
+  def mermaid_blocks(doc)
+    doc.css("pre > code.language-mermaid, pre > code.mermaid").each do |code|
+      src = code.text.strip
+      caption = src[/\A%%\s*caption:\s*(.+)$/i, 1]&.strip
+      fig = Nokogiri::XML::Node.new("figure", doc)
+      fig["class"] = "mermaid-figure"
+      pre = Nokogiri::XML::Node.new("pre", doc)
+      pre["class"] = "mermaid-src"; pre["data-type"] = "mermaid"
+      pre.content = src
+      fig.add_child(pre)
+      if caption.present?
+        cap = Nokogiri::XML::Node.new("figcaption", doc)
+        cap.content = caption
+        fig.add_child(cap)
+      end
+      code.parent.replace(fig)
+    end
   end
 
   def markdown(src)

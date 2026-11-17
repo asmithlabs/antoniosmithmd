@@ -18,9 +18,29 @@
         <label>Tags <small>(comma-separated)</small> <%= f.text_field :tags, placeholder: "epic, cds, governance" %></label>
         <label class="check"><%= f.check_box :featured %> Featured on home page</label>
       </fieldset>
+      <% if post.persisted? && post.published? %>
+        <fieldset><legend>Change note <small>(public)</small></legend>
+          <p class="muted small">Optional. Shown to readers with this post's history. Leave blank for a silent edit
+            (the earlier text still appears on the history page).</p>
+          <label>Kind <%= f.select :change_kind, PostRevision::KINDS.invert %></label>
+          <label>Note <%= f.text_area :change_note, rows: 2, maxlength: 500, placeholder: "Fixed the dosage in the second table; thanks to a reader." %></label>
+        </fieldset>
+      <% end %>
+      <fieldset><legend>Code &amp; project</legend>
+        <label>Links <small>(one per line, https only; optional "Label | URL")</small>
+          <%= f.text_area :code_links, rows: 3, placeholder: "https://github.com/asmithlabs/home_lab\nLive app | https://example.org\nhttps://github.com/asmithlabs/home_lab/commit/abc1234" %></label>
+        <p class="muted small">Repos, commits, pull requests, docs or a running app. Shown in a box at the end of the post.</p>
+      <fieldset><legend>Notebook</legend>
+        <label>Stage <%= f.select :notebook_stage, Post::NOTEBOOK_STAGES.to_h { |k, v| ["#{v[:icon]} #{v[:label]}", k] }, include_blank: "— finished essay —" %></label>
+        <p class="muted small">A stage puts this in the research notebook and tells readers it's a working note.</p>
+        <label>Open questions <small>(one per line)</small> <%= f.text_area :questions, rows: 3, placeholder: "Does X hold outside academic centers?" %></label>
+      </fieldset>
       <fieldset><legend>Mastodon</legend>
         <% if post.mastodon_url.present? %>
           <p>Shared <%= time_ago_in_words(post.mastodon_posted_at) %> ago → <%= link_to "view toot ↗", post.mastodon_url, target: "_blank", rel: "noopener" %></p>
+          <label class="check"><%= f.check_box :mastodon_replies %> Show Mastodon replies under the post</label>
+          <label>Hide replies <small>(paste reply links or ids, one per line)</small>
+            <%= f.text_area :mastodon_hidden, rows: 2 %></label>
         <% else %>
           <label class="check"><%= f.check_box :share_mastodon %> Share on Mastodon when published</label>
           <small class="muted"><%= MastodonSyndication.configured? ? "Posted within ~5 min of going live, once." : "Not connected (set MASTODON_URL and MASTODON_TOKEN)." %></small>

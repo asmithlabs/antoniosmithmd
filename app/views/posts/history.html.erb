@@ -1,0 +1,31 @@
+<% content_for :title, "History: #{@post.title}" %>
+<% content_for :description, "How “#{@post.title}” has changed since it was published." %>
+<% content_for(:head) { tag.meta(name: "robots", content: "noindex") } %>
+<section class="hero"><p class="eyebrow">history</p><h1><%= link_to @post.display_title, post_path(@post) %></h1></section>
+<p class="muted">Published <%= @post.published_at.strftime("%B %-d, %Y") %>. Every change made after publication is listed here,
+  newest first, with removed text <del>struck through</del> and added text <ins>highlighted</ins>.
+  Edits made while the post was a draft aren't shown.</p>
+
+<% if @versions.empty? %>
+  <p>No changes since publication.</p>
+<% else %>
+  <ol class="history" reversed>
+    <% @versions.each do |old, new| %>
+      <li id="v<%= old.id %>">
+        <p class="meta"><time datetime="<%= old.created_at.iso8601 %>"><%= old.created_at.strftime("%B %-d, %Y · %H:%M %Z") %></time>
+          · <span class="change-kind <%= old.change_kind %>"><%= old.kind_label %></span></p>
+        <% if old.change_note.present? %><p class="change-note"><%= old.change_note %></p><% end %>
+        <% if old.title.to_s != new.title.to_s %><p class="muted">Title was “<%= old.title %>”.</p><% end %>
+        <% diff = old.diff_html(new.plain_text) %>
+        <% if old.plain_text == new.plain_text %>
+          <p class="muted">Text unchanged (formatting, links or metadata only).</p>
+        <% else %>
+          <details<%= " open" if @versions.size <= 3 %>><summary>Show changes</summary>
+            <div class="diff"><%= diff %></div>
+          </details>
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+<% end %>
+<p><%= link_to "← back to the post", post_path(@post) %></p>
