@@ -49,7 +49,7 @@ end
 gem "redcarpet", "~> 3.6"
 gem "bcrypt", "~> 3.1"
 
-gem "reverse_markdown", "~> 3.0"
+gem "reverse_markdown", "~> 3.1"
 
 gem "nokogiri", "~> 1.19"
 
