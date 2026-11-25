@@ -344,3 +344,16 @@ article[data-mode=study] .prose sup.cites{font-size:.85em}
 .mermaid-figure .mermaid-toggle{font-size:.78rem;color:var(--slate);background:none;border:0;cursor:pointer}
 /* portfolio cards (API-fed) */
 .pf-status{font-weight:600;color:var(--slate)}.pf-active{color:var(--teal)}.pf-shipped{color:var(--gold)}
+/* header search: top right of the header on desktop, a full-width row of the menu on phones */
+.site-header .wrap{position:relative}
+.site-header .site-nav{display:flex;flex-wrap:wrap;align-items:center;row-gap:.2em}
+.nav-search{position:absolute;top:-.2em;right:1.5ch;margin:0}
+.nav-search input{font:inherit;width:22ch;padding:.15em 1ch;border:1px solid var(--slate);border-radius:0;background:var(--bg);color:var(--ink);-webkit-appearance:none;appearance:none}
+.nav-search input::placeholder{color:var(--slate);opacity:1}
+.nav-search input:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--teal)}
+.site-header .site-nav{flex-basis:100%;margin-left:-2ch}
+@media (max-width:600px){
+  .site-header .site-nav{margin-left:-1.2ch}
+  .nav-search{position:static;order:9;flex-basis:100%;margin:.6em 0 0 1.2ch}
+  .nav-search input{width:100%;font-size:16px;padding:.5em 1ch;min-height:44px}
+}
